@@ -23,7 +23,7 @@
 
     <!-- Latest compiled and minified CSS Bootstrap Select -->
     <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
 
     <!-- css -->
     <link rel="stylesheet" href="css/style.css">
@@ -36,6 +36,12 @@
     <![endif]-->
 </head>
 <body>
+
+<header>
+    <img id="anychart-logo" src="./img/logo.png" alt="AnyChart logo">
+    <h3 id="header-title">Stock analysis tool demo with real-time data by EODHistoricalData</h3>
+</header>
+
 <!-- anychart loader -->
 <div id="loader" class="anychart-loader">
     <div class="rotating-cover">
@@ -88,8 +94,8 @@
     </div>
 </div>
 
+<div id="indicator-panel">
     <ul class="list list-unstyled list-nav" id="indicatorNavPanel">
-
         <li>
             <select name="" id="seriesTypeSelect" class="select selectpicker show-tick">
                 <!--series constructors-->
@@ -102,7 +108,6 @@
                 <!---->
             </select>
         </li>
-
         <li>
             <select class="select show-tick" multiple name="" data-width="350" id="indicatorTypeSelect"
                     title="Add Indicator">
@@ -110,9 +115,6 @@
         </li>
 
         <li><a class="btn btn-default" href="" id="resetButton">Reset</a></li>
-        <li>
-            <button class="btn btn-default" id="Showvolume">Hide volume</button>
-        </li>
         <li>
             <select name="themes" id="themeSelect" class="select selectpicker show-tick">
                 <option value="darkTurquoise" selected>Dark Turquoise</option>
@@ -132,289 +134,289 @@
                 <option value="pastel">Pastel</option>
                 <option value="sea">Sea</option>
                 <option value="wines">Wines</option>
-
-
             </select>
         </li>
     </ul>
-    <div class="toolbar" id="drawingToolsPanel">
-        <div class="btn-group-container">
-            <div class="btn-group">
-                <button type="button" class="btn btn-default color-picker" data-color="fill" data-toggle="tooltip"
-                        title="Сhoose drawing fill color"><span
-                        class="color-fill-icon dropdown-color-fill-icon" style="background-color:#e06666;"></span>&nbsp;<b
-                        class="caret"></b>
-                </button>
+</div>
 
-                <button type="button" class="btn btn-default color-picker" data-color="stroke" data-toggle="tooltip"
-                        title="Сhoose drawing stroke color"><span
-                        class="color-fill-icon dropdown-color-fill-icon" style="background-color:#e06666;"></span>&nbsp;<b
-                        class="caret"></b>
-                </button>
-
-                <select class="selectpicker show-menu-arrow" id="select-stroke-settings"
-                        title="Stroke settings"
-                        data-style="btn-lg" data-width="121" multiple>
-                    <optgroup label="Stroke width" data-max-options="1">
-                        <option data-settings="width" value="1">1 px</option>
-                        <option data-settings="width" value="2">2 px</option>
-                        <option data-settings="width" value="3">3 px</option>
-                        <option data-settings="width" value="4">4 px</option>
-                        <option data-settings="width" value="5">5 px</option>
-                    </optgroup>
-                    <optgroup label="Stroke dash" data-max-options="1">
-                        <option value="6" data-settings="type">solid</option>
-                        <option value="7" data-settings="type">dotted</option>
-                        <option value="8" data-settings="type">dashed</option>
-                    </optgroup>
-                </select>
-            </div>
-            <div class="btn-group">
-                <button type="button" data-action-type="unSelectedAnnotation" class="btn btn-default"
-                        aria-label="Center Align" data-toggle="tooltip" title="Cursor">
-                    <i class="ac ac-mouse-pointer" aria-hidden="true"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="btn-group hidden-xs">
-            <button data-annotation-type="line" type="button" class="btn btn-default" aria-label="Center Align"
-                    data-toggle="tooltip" title="Line Segment">
-                <i class="ac ac-line" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="horizontal-line" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Horizontal Line">
-                <i class="ac ac-horizontal-line" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="vertical-line" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Vertical Line">
-                <i class="ac ac-vertical-line" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="infinite-line" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Infinite Line">
-                <i class="ac ac-infinite-line" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="ray" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Ray">
-                <i class="ac ac-ray" aria-hidden="true"></i>
-            </button>
-        </div>
-
-        <div class="btn-group hidden-xs">
-            <button data-annotation-type="triangle" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Triangle">
-                <i class="ac ac-triangle" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="rectangle" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Rectangle">
-                <i class="ac ac-rectangle" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="ellipse" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Ellipse">
-                <i class="ac ac-ellipse" aria-hidden="true"></i>
-            </button>
-        </div>
-
-        <div class="btn-group hidden-xs">
-            <button data-annotation-type="trend-channel" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Trend Channel">
-                <i class="ac ac-trend-channel" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="andrews-pitchfork" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Andrew's Pitchfork">
-                <i class="ac ac-andrews-pitchfork" aria-hidden="true"></i>
-            </button>
-        </div>
-
-        <div class="btn-group hidden-xs">
-            <button data-annotation-type="fibonacci-fan" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Fibonacci Fan">
-                <i class="ac ac-fibonacci-fan" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="fibonacci-arc" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Fibonacci Arc">
-                <i class="ac ac-fibonacci-arc" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="fibonacci-retracement" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Fibonacci Retracement">
-                <i class="ac ac-fibonacci-retracement" aria-hidden="true"></i>
-            </button>
-            <button data-annotation-type="fibonacci-timezones" type="button" class="btn btn-default"
-                    aria-label="Center Align" data-toggle="tooltip" title="Fibonacci Time Zones">
-                <i class="ac ac-fibonacci-timezones" aria-hidden="true"></i>
+<div class="toolbar" id="drawingToolsPanel">
+    <div class="btn-group-container">
+        <div class="btn-group">
+            <button type="button" class="btn btn-default color-picker" data-color="fill" data-toggle="tooltip"
+                    title="Сhoose drawing fill color"><span
+                    class="color-fill-icon dropdown-color-fill-icon" style="background-color:#e06666;"></span>&nbsp;<b
+                    class="caret"></b>
             </button>
 
-        </div>
+            <button type="button" class="btn btn-default color-picker" data-color="stroke" data-toggle="tooltip"
+                    title="Сhoose drawing stroke color"><span
+                    class="color-fill-icon dropdown-color-fill-icon" style="background-color:#e06666;"></span>&nbsp;<b
+                    class="caret"></b>
+            </button>
 
-        <div class="btn-group-container">
-            <div class="btn-group">
-                <select class="selectpicker show-menu-arrow select choose-marker" id="select-marker-type"
-                        title="Marker"
-                        data-style="btn-lg" data-width="90" data-max-options="1">
-                    <option data-icon="ac ac-arrow-up-square" data-annotation-type="marker" data-marker-type="arrowUp"
-                            data-marker-anchor="center-top">Up Arrow
-                    </option>
-                    <option data-icon="ac ac-arrow-down-square" data-annotation-type="marker"
-                            data-marker-type="arrow-down" data-marker-anchor="center-bottom">Down Arrow
-                    </option>
-                    <option data-icon="ac ac-arrow-left-square" data-annotation-type="marker"
-                            data-marker-type="arrow-left" data-marker-anchor="left-center">Left Arrow
-                    </option>
-                    <option data-icon="ac ac-arrow-right-square" data-annotation-type="marker"
-                            data-marker-type="arrow-right" data-marker-anchor="right-center">Right Arrow
-                    </option>
-                    <option data-icon="ac ac-head-arrow" data-annotation-type="marker" data-marker-type="arrowHead"
-                            data-marker-anchor="right-center">Head Arrow
-                    </option>
-                    <option data-icon="ac ac-cross" data-annotation-type="marker" data-marker-type="cross"
-                            data-marker-anchor="center">Cross
-                    </option>
-                    <option data-icon="ac ac-diagonal-cros" data-annotation-type="marker"
-                            data-marker-type="diagonal-cross"
-                            data-marker-anchor="center">Diagonal cross
-                    </option>
-                    <option data-icon="ac ac-diamond" data-annotation-type="marker" data-marker-type="diamond"
-                            data-marker-anchor="center">Diamond
-                    </option>
-                    <option data-icon="ac ac-pentagon" data-annotation-type="marker" data-marker-type="pentagon"
-                            data-marker-anchor="center">Pentagon
-                    </option>
-                    <option data-icon="ac ac-square" data-annotation-type="marker" data-marker-type="square"
-                            data-marker-anchor="center">Square
-                    </option>
-                    <option data-icon="ac ac-star-1" data-annotation-type="marker" data-marker-type="star10"
-                            data-marker-anchor="center">Star 1
-                    </option>
-                    <option data-icon="ac ac-star-2" data-annotation-type="marker" data-marker-type="star4"
-                            data-marker-anchor="center">Star 2
-                    </option>
-                    <option data-icon="ac ac-star-3" data-annotation-type="marker" data-marker-type="star5"
-                            data-marker-anchor="center">Star 3
-                    </option>
-                    <option data-icon="ac ac-star-4" data-annotation-type="marker" data-marker-type="star6"
-                            data-marker-anchor="center">Star 4
-                    </option>
-                    <option data-icon="ac ac-star-5" data-annotation-type="marker" data-marker-type="star7"
-                            data-marker-anchor="center">Star 5
-                    </option>
-                    <option data-icon="ac ac-trapezium" data-annotation-type="marker" data-marker-type="trapezium"
-                            data-marker-anchor="center">Trapezium
-                    </option>
-                    <option data-icon="ac ac-triangle-up" data-annotation-type="marker" data-marker-type="triangle-up"
-                            data-marker-anchor="center-top">Triangle Up
-                    </option>
-                    <option data-icon="ac ac-triangle-down" data-annotation-type="marker"
-                            data-marker-type="triangle-down"
-                            data-marker-anchor="center-bottom">Triangle Down
-                    </option>
-                    <option data-icon="ac ac-triangle-left" data-annotation-type="marker"
-                            data-marker-type="triangle-left"
-                            data-marker-anchor="left-center">Triangle Left
-                    </option>
-                    <option data-icon="ac ac-triangle-right" data-annotation-type="marker"
-                            data-marker-type="triangle-right"
-                            data-marker-anchor="right-center">Triangle Right
-                    </option>
-                </select>
-                <select class="selectpicker show-menu-arrow select select-marker-size" id="select-marker-size"
-                        title="Marker size"
-                        data-style="btn-lg" data-width="80" data-max-options="1">
+            <select class="selectpicker show-menu-arrow" id="select-stroke-settings"
+                    title="Stroke settings"
+                    data-style="btn-lg" data-width="121" multiple>
+                <optgroup label="Stroke width" data-max-options="1">
+                    <option data-settings="width" value="1">1 px</option>
+                    <option data-settings="width" value="2">2 px</option>
+                    <option data-settings="width" value="3">3 px</option>
+                    <option data-settings="width" value="4">4 px</option>
                     <option data-settings="width" value="5">5 px</option>
-                    <option data-settings="width" value="10">10 px</option>
-                    <option data-settings="width" value="15">15 px</option>
-                    <option data-settings="width" value="20" selected>20 px</option>
-                    <option data-settings="width" value="25">25 px</option>
-                </select>
-            </div>
+                </optgroup>
+                <optgroup label="Stroke dash" data-max-options="1">
+                    <option value="6" data-settings="type">solid</option>
+                    <option value="7" data-settings="type">dotted</option>
+                    <option value="8" data-settings="type">dashed</option>
+                </optgroup>
+            </select>
         </div>
-        <div class="btn-group-container">
-            <div class="btn-group">
-                <button data-action-type="removeSelectedAnnotation" type="button" class="btn btn-default"
-                        aria-label="Center Align" data-toggle="tooltip" title="Delete selected drawing">
-                    <i class="ac ac-remove-thin" aria-hidden="true"></i>
-                </button>
-                <button data-action-type="removeAllAnnotations" type="button" class="btn btn-default"
-                        aria-label="Center Align" data-toggle="tooltip" title="Delete all drawings">Remove All
-                </button>
-                <button data-action-type="saveAnno" type="button" class="btn btn-default disabled"
-                        aria-label="Center Align" data-toggle="tooltip" title="Save annotations">Save annotations
-                </button>
-            </div>
+        <div class="btn-group">
+            <button type="button" data-action-type="unSelectedAnnotation" class="btn btn-default"
+                    aria-label="Center Align" data-toggle="tooltip" title="Cursor">
+                <i class="ac ac-mouse-pointer" aria-hidden="true"></i>
+            </button>
         </div>
-        <div class="btn-group-container">
-            <div class="btn-group">
-                <button data-annotation-type="label" type="button" class="btn btn-default"
-                        aria-label="Center Align"
-                        data-toggle="tooltip" title="Label">
-                    <i class="ac ac-font"></i>
-                </button>
+    </div>
 
-                <button type="button" class="btn btn-default" id="annotation-label-autosize"
-                        aria-label="Auto-resize" data-toggle="tooltip" title="Auto-resize">
-                    <i class="ac ac-enlarge" aria-hidden="true"></i>
-                </button>
+    <div class="btn-group hidden-xs">
+        <button data-annotation-type="line" type="button" class="btn btn-default" aria-label="Center Align"
+                data-toggle="tooltip" title="Line Segment">
+            <i class="ac ac-line" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="horizontal-line" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Horizontal Line">
+            <i class="ac ac-horizontal-line" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="vertical-line" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Vertical Line">
+            <i class="ac ac-vertical-line" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="infinite-line" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Infinite Line">
+            <i class="ac ac-infinite-line" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="ray" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Ray">
+            <i class="ac ac-ray" aria-hidden="true"></i>
+        </button>
+    </div>
 
-                <button type="button" class="btn btn-default color-picker" data-color="fontColor"
-                        data-toggle="tooltip"
-                        title="Сhoose font color"><span
-                        class="color-fill-icon dropdown-color-fill-icon" data-color="black"></span>&nbsp;<b
-                        class="caret"></b>
-                </button>
+    <div class="btn-group hidden-xs">
+        <button data-annotation-type="triangle" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Triangle">
+            <i class="ac ac-triangle" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="rectangle" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Rectangle">
+            <i class="ac ac-rectangle" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="ellipse" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Ellipse">
+            <i class="ac ac-ellipse" aria-hidden="true"></i>
+        </button>
+    </div>
 
-                <select class="selectpicker show-menu-arrow select select-font-size" id="select-font-size"
-                        title="Font size"
-                        data-style="btn-lg" data-width="80" data-max-options="1">
-                    <option data-settings="width" value="5">5 px</option>
-                    <option data-settings="width" value="10">10 px</option>
-                    <option data-settings="width" value="15">15 px</option>
-                    <option data-settings="width" value="20" selected>20 px</option>
-                    <option data-settings="width" value="25">25 px</option>
-                </select>
+    <div class="btn-group hidden-xs">
+        <button data-annotation-type="trend-channel" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Trend Channel">
+            <i class="ac ac-trend-channel" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="andrews-pitchfork" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Andrew's Pitchfork">
+            <i class="ac ac-andrews-pitchfork" aria-hidden="true"></i>
+        </button>
+    </div>
 
-                <select class="selectpicker" id="select-font-style"
-                        title="Font settings"
-                        data-style="btn-lg" data-width="121" multiple>
-                    <optgroup label="Font style" data-max-options="2">
-                        <option data-icon="ac-italic" data-label-method="fontStyle" value="italic">Italic
-                        </option>
-                        <option data-icon="ac-bold" data-label-method="fontWeight" value="bold">Bold</option>
-                    </optgroup>
-                    <optgroup label="Font decoration" data-max-options="1" data-label-method="fontDecoration">
-                        <option data-icon="ac-strikethrough" value="line-through">Line-through</option>
-                        <option data-icon="ac-overline" value="overline">Overline</option>
-                        <option data-icon="ac-underline" value="underline">Underline</option>
-                    </optgroup>
-                    <optgroup label="Horizontal align" data-max-options="1" data-label-method="hAlign">
-                        <option data-icon="ac-align-center" value="center">Center</option>
-                        <option data-icon="ac-align-left" value="left">Left</option>
-                        <option data-icon="ac-align-right" value="right">Right</option>
-                        <option data-icon="ac-position-left" value="start">Start</option>
-                        <option data-icon="ac-position-right" value="end">End</option>
-                    </optgroup>
-                    <optgroup label="Anchor" data-max-options="1" data-label-method="anchor">
-                        <option data-icon="ac-anc-cb" value="center-bottom">Center bottom</option>
-                        <option data-icon="ac-anc-ct" value="center-top">Center top</option>
-                        <option data-icon="ac-anc-lb" value="left-bottom">Left bottom</option>
-                        <option data-icon="ac-anc-lc" value="left-center">Left center</option>
-                        <option data-icon="ac-anc-lt" value="left-top">Left top</option>
-                        <option data-icon="ac-anc-rb" value="right-bottom">Right bottom</option>
-                        <option data-icon="ac-anc-rc" value="right-center">Right center</option>
-                        <option data-icon="ac-anc-rt" value="right-top">Right top</option>
-                        <option data-icon="ac-anc-c" value="center">Center</option>
-                    </optgroup>
-                    <optgroup label="Vertical align" data-max-options="1" data-label-method="vAlign">
-                        <option data-icon="ac-position-top" value="top">Top</option>
-                        <option data-icon="ac-position-center2" value="middle">Middle</option>
-                        <option data-icon="ac-position-bottom" value="bottom">Bottom</option>
-                    </optgroup>
-                </select>
-
-            </div>
-        </div>
-
+    <div class="btn-group hidden-xs">
+        <button data-annotation-type="fibonacci-fan" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Fibonacci Fan">
+            <i class="ac ac-fibonacci-fan" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="fibonacci-arc" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Fibonacci Arc">
+            <i class="ac ac-fibonacci-arc" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="fibonacci-retracement" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Fibonacci Retracement">
+            <i class="ac ac-fibonacci-retracement" aria-hidden="true"></i>
+        </button>
+        <button data-annotation-type="fibonacci-timezones" type="button" class="btn btn-default"
+                aria-label="Center Align" data-toggle="tooltip" title="Fibonacci Time Zones">
+            <i class="ac ac-fibonacci-timezones" aria-hidden="true"></i>
+        </button>
 
     </div>
-    <div id="chart-container"></div>
+
+    <div class="btn-group-container">
+        <div class="btn-group">
+            <select class="selectpicker show-menu-arrow select choose-marker" id="select-marker-type"
+                    title="Marker"
+                    data-style="btn-lg" data-width="90" data-max-options="1">
+                <option data-icon="ac ac-arrow-up-square" data-annotation-type="marker" data-marker-type="arrowUp"
+                        data-marker-anchor="center-top">Up Arrow
+                </option>
+                <option data-icon="ac ac-arrow-down-square" data-annotation-type="marker"
+                        data-marker-type="arrow-down" data-marker-anchor="center-bottom">Down Arrow
+                </option>
+                <option data-icon="ac ac-arrow-left-square" data-annotation-type="marker"
+                        data-marker-type="arrow-left" data-marker-anchor="left-center">Left Arrow
+                </option>
+                <option data-icon="ac ac-arrow-right-square" data-annotation-type="marker"
+                        data-marker-type="arrow-right" data-marker-anchor="right-center">Right Arrow
+                </option>
+                <option data-icon="ac ac-head-arrow" data-annotation-type="marker" data-marker-type="arrowHead"
+                        data-marker-anchor="right-center">Head Arrow
+                </option>
+                <option data-icon="ac ac-cross" data-annotation-type="marker" data-marker-type="cross"
+                        data-marker-anchor="center">Cross
+                </option>
+                <option data-icon="ac ac-diagonal-cros" data-annotation-type="marker"
+                        data-marker-type="diagonal-cross"
+                        data-marker-anchor="center">Diagonal cross
+                </option>
+                <option data-icon="ac ac-diamond" data-annotation-type="marker" data-marker-type="diamond"
+                        data-marker-anchor="center">Diamond
+                </option>
+                <option data-icon="ac ac-pentagon" data-annotation-type="marker" data-marker-type="pentagon"
+                        data-marker-anchor="center">Pentagon
+                </option>
+                <option data-icon="ac ac-square" data-annotation-type="marker" data-marker-type="square"
+                        data-marker-anchor="center">Square
+                </option>
+                <option data-icon="ac ac-star-1" data-annotation-type="marker" data-marker-type="star10"
+                        data-marker-anchor="center">Star 1
+                </option>
+                <option data-icon="ac ac-star-2" data-annotation-type="marker" data-marker-type="star4"
+                        data-marker-anchor="center">Star 2
+                </option>
+                <option data-icon="ac ac-star-3" data-annotation-type="marker" data-marker-type="star5"
+                        data-marker-anchor="center">Star 3
+                </option>
+                <option data-icon="ac ac-star-4" data-annotation-type="marker" data-marker-type="star6"
+                        data-marker-anchor="center">Star 4
+                </option>
+                <option data-icon="ac ac-star-5" data-annotation-type="marker" data-marker-type="star7"
+                        data-marker-anchor="center">Star 5
+                </option>
+                <option data-icon="ac ac-trapezium" data-annotation-type="marker" data-marker-type="trapezium"
+                        data-marker-anchor="center">Trapezium
+                </option>
+                <option data-icon="ac ac-triangle-up" data-annotation-type="marker" data-marker-type="triangle-up"
+                        data-marker-anchor="center-top">Triangle Up
+                </option>
+                <option data-icon="ac ac-triangle-down" data-annotation-type="marker"
+                        data-marker-type="triangle-down"
+                        data-marker-anchor="center-bottom">Triangle Down
+                </option>
+                <option data-icon="ac ac-triangle-left" data-annotation-type="marker"
+                        data-marker-type="triangle-left"
+                        data-marker-anchor="left-center">Triangle Left
+                </option>
+                <option data-icon="ac ac-triangle-right" data-annotation-type="marker"
+                        data-marker-type="triangle-right"
+                        data-marker-anchor="right-center">Triangle Right
+                </option>
+            </select>
+            <select class="selectpicker show-menu-arrow select select-marker-size" id="select-marker-size"
+                    title="Marker size"
+                    data-style="btn-lg" data-width="80" data-max-options="1">
+                <option data-settings="width" value="5">5 px</option>
+                <option data-settings="width" value="10">10 px</option>
+                <option data-settings="width" value="15">15 px</option>
+                <option data-settings="width" value="20" selected>20 px</option>
+                <option data-settings="width" value="25">25 px</option>
+            </select>
+        </div>
+    </div>
+    <div class="btn-group-container">
+        <div class="btn-group">
+            <button data-action-type="removeSelectedAnnotation" type="button" class="btn btn-default"
+                    aria-label="Center Align" data-toggle="tooltip" title="Delete selected drawing">
+                <i class="ac ac-remove-thin" aria-hidden="true"></i>
+            </button>
+            <button data-action-type="removeAllAnnotations" type="button" class="btn btn-default"
+                    aria-label="Center Align" data-toggle="tooltip" title="Delete all drawings">Remove All
+            </button>
+            <button data-action-type="saveAnno" type="button" class="btn btn-default disabled"
+                    aria-label="Center Align" data-toggle="tooltip" title="Save annotations">Save annotations
+            </button>
+        </div>
+    </div>
+    <div class="btn-group-container">
+        <div class="btn-group">
+            <button data-annotation-type="label" type="button" class="btn btn-default"
+                    aria-label="Center Align"
+                    data-toggle="tooltip" title="Label">
+                <i class="ac ac-font"></i>
+            </button>
+
+            <button type="button" class="btn btn-default" id="annotation-label-autosize"
+                    aria-label="Auto-resize" data-toggle="tooltip" title="Auto-resize">
+                <i class="ac ac-enlarge" aria-hidden="true"></i>
+            </button>
+
+            <button type="button" class="btn btn-default color-picker" data-color="fontColor"
+                    data-toggle="tooltip"
+                    title="Сhoose font color"><span
+                    class="color-fill-icon dropdown-color-fill-icon" data-color="black"></span>&nbsp;<b
+                    class="caret"></b>
+            </button>
+
+            <select class="selectpicker show-menu-arrow select select-font-size" id="select-font-size"
+                    title="Font size"
+                    data-style="btn-lg" data-width="80" data-max-options="1">
+                <option data-settings="width" value="5">5 px</option>
+                <option data-settings="width" value="10">10 px</option>
+                <option data-settings="width" value="15">15 px</option>
+                <option data-settings="width" value="20" selected>20 px</option>
+                <option data-settings="width" value="25">25 px</option>
+            </select>
+
+            <select class="selectpicker" id="select-font-style"
+                    title="Font settings"
+                    data-style="btn-lg" data-width="121" multiple>
+                <optgroup label="Font style" data-max-options="2">
+                    <option data-icon="ac-italic" data-label-method="fontStyle" value="italic">Italic
+                    </option>
+                    <option data-icon="ac-bold" data-label-method="fontWeight" value="bold">Bold</option>
+                </optgroup>
+                <optgroup label="Font decoration" data-max-options="1" data-label-method="fontDecoration">
+                    <option data-icon="ac-strikethrough" value="line-through">Line-through</option>
+                    <option data-icon="ac-overline" value="overline">Overline</option>
+                    <option data-icon="ac-underline" value="underline">Underline</option>
+                </optgroup>
+                <optgroup label="Horizontal align" data-max-options="1" data-label-method="hAlign">
+                    <option data-icon="ac-align-center" value="center">Center</option>
+                    <option data-icon="ac-align-left" value="left">Left</option>
+                    <option data-icon="ac-align-right" value="right">Right</option>
+                    <option data-icon="ac-position-left" value="start">Start</option>
+                    <option data-icon="ac-position-right" value="end">End</option>
+                </optgroup>
+                <optgroup label="Anchor" data-max-options="1" data-label-method="anchor">
+                    <option data-icon="ac-anc-cb" value="center-bottom">Center bottom</option>
+                    <option data-icon="ac-anc-ct" value="center-top">Center top</option>
+                    <option data-icon="ac-anc-lb" value="left-bottom">Left bottom</option>
+                    <option data-icon="ac-anc-lc" value="left-center">Left center</option>
+                    <option data-icon="ac-anc-lt" value="left-top">Left top</option>
+                    <option data-icon="ac-anc-rb" value="right-bottom">Right bottom</option>
+                    <option data-icon="ac-anc-rc" value="right-center">Right center</option>
+                    <option data-icon="ac-anc-rt" value="right-top">Right top</option>
+                    <option data-icon="ac-anc-c" value="center">Center</option>
+                </optgroup>
+                <optgroup label="Vertical align" data-max-options="1" data-label-method="vAlign">
+                    <option data-icon="ac-position-top" value="top">Top</option>
+                    <option data-icon="ac-position-center2" value="middle">Middle</option>
+                    <option data-icon="ac-position-bottom" value="bottom">Bottom</option>
+                </optgroup>
+            </select>
+
+        </div>
+    </div>
+
+
+</div>
+<div id="chart-container"></div>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -453,5 +455,9 @@
 <!---->
 
 <script src="js/app.js"></script>
+
+<footer>
+    <p>Powered by <a href="https://www.anychart.com/">AnyChart.com</a></p>
+</footer>
 </body>
 </html>

@@ -373,17 +373,6 @@ function getInputLabelText(keyText) {
       indicatorlist = [];
     });
 
-    $('#Showvolume').click(function() {
-      if (chart.plot().getSeries("VolumeSeries")) {
-        chart.plot().removeSeries("VolumeSeries");
-        $('#Showvolume').html('Show volume');
-      } else {
-        createVolumeSeries(chart.plot(0)).data(mapping);
-        $('#Showvolume').html('Hide volume');
-      }
-
-    });
-
     // event to add indicator
     $addIndicatorBtn.on('click', function() {
       var mapping = dataTable.mapAs({'value': 1, 'volume': 1, 'open': 1, 'high': 2, 'low': 3, 'close': 4});
@@ -593,15 +582,6 @@ function getInputLabelText(keyText) {
           chart.annotations().unselect(annotation).cancelDrawing();
           setToolbarButtonActive(null);
           break;
-        case 'showVolume':
-          if (chart.plot().getSeries("VolumeSeries")) {
-            chart.plot().removeSeries("VolumeSeries");
-            $('#ShowVolume').html('Show volume');
-          } else {
-            createVolumeSeries(chart.plot(0)).data(mapping);
-            $('#ShowVolume').html('Hide volume');
-          }
-          break;
         case 'saveAnno':
           var json;
           json = chart.plot(0).annotations().toJson(true);
@@ -701,36 +681,27 @@ function getInputLabelText(keyText) {
     chart = anychart.stock();
     var plot = chart.plot();
     plot.legend(false);
-    chart.title('BTC/USD data for the last 120 minutes and realtime ticker\nThe last update was:');
+    chart.title('EUR.FOREX data started from Jan 2000 and 1 minute ticker\nThe last update was:');
 
     //create OHLC series
     var series = plot.candlestick();
 
-    series.name('BTC/USD');
+    series.name('EUR.FOREX');
 
     series.legendItem({
       iconEnabled: false
     });
 
-    var volumeSeries = createVolumeSeries(plot);
-
     //render the chart
     chart.container(container).draw();
-
-    $('#Showvolume').html('Hide volume');
 
     // create range selector
     var rangeSelector = anychart.ui.rangeSelector();
     // init range selector
     rangeSelector.render(chart);
-    // Set custom ranges for range selector.
-    rangeSelector.ranges([
-      {type: "max", text: "MAX"},
-      {type: "unit", unit: "Hour", count: 2, text: "2h", anchor: "last-date"},
-      {type: "unit", unit: "Hour", count: 1, text: "1h", anchor: "last-date"},
-      {type: "unit", unit: "Minute", count: 30, text: "30m", anchor: "last-date"},
-      {type: "unit", unit: "Minute", count: 10, text: "10m", anchor: "last-date"}
-    ]);
+
+    var rangePicker = anychart.ui.rangePicker();
+
 
     //get saved annotations from the 0 plot
     var ChartStore = localStorage.getItem('annotationsList0');
@@ -812,19 +783,14 @@ function getInputLabelText(keyText) {
 
       //restore data from existing datatable
       mapping = dataTable.mapAs({
-        x: 0,
-        open: 1,
-        high: 2,
-        low: 3,
-        close: 4,
-        value: {
-          column: 5
-        }
+        'open': 'Open',
+        'high': 'High',
+        'low': 'Low',
+        'close': 'Close'
       });
 
       //set mapping to both series
       series.data(mapping);
-      volumeSeries.data(mapping);
 
       var indicatorName;
       var indicatorPlot;
@@ -867,12 +833,17 @@ function getInputLabelText(keyText) {
         if (JSON.parse(ChartStore).annotationsList.length)
           chart.plot(plotIndex).annotations().fromJson(ChartStore);
       }
-
-
       return;
     }
 
-    dataTable = anychart.data.table();
+    dataTable = anychart.data.table('Date');
+    // map the data
+    mapping = dataTable.mapAs({
+      'open': 'Open',
+      'high': 'High',
+      'low': 'Low',
+      'close': 'Close'
+    });
 
     // creates an Application to work with socket
     //start COMET connection
@@ -880,7 +851,7 @@ function getInputLabelText(keyText) {
       localStorage.removeItem('currentRange');
       (function() {
         //open connection
-        $.get('http://localhost:8081/cexIO');
+        $.get('http://localhost:8081/eod');
 
         start();
 
@@ -891,7 +862,7 @@ function getInputLabelText(keyText) {
             return;
           }
 
-          var eventSource = new EventSource('cexIO');
+          var eventSource = new EventSource('eod');
 
           eventSource.onopen = function() {
             log("Connection established");
@@ -912,26 +883,22 @@ function getInputLabelText(keyText) {
           eventSource.onmessage = function(e) {
             timer = 0;
             var data = JSON.parse(e.data);
-            log(e.data);
-            //  BTC/USD current price ticker
-            if (data.e === 'tick' && data.data.symbol1 === 'BTC' && data.data.symbol2 === 'USD') {
-              priceTickDataHandler(data);
-            }
 
-            // data for the last 120 minutes
-            if (data.e === 'init-ohlcv-data' && data.pair === 'BTC:USD') {
+            // history data
+            if (Array.isArray(data)) {
               historyDataHandler(data);
+              rangePicker.render(chart);
             }
 
-            //  BTC/USD 1 minute changes subscription
-            if (data.e === 'ohlcv1m' && data.data.pair === 'BTC:USD') {
+            //  1 minute changes subscription
+            if (data.code === 'EUR.FOREX') {
               oneMinuteDataHandler(data);
             }
           };
         }
 
         function log(msg) {
-          // console.log(msg + '\n');
+          console.log(msg + '\n');
         }
       })();
     }
@@ -945,7 +912,7 @@ function getInputLabelText(keyText) {
       if (secondCounter == null) {
         secondCounter = setInterval(function() {
           timer += 1;
-          chart.title('BTC/USD data for the last 120 minutes and realtime ticker\nThe last update was: ' + timer + ' seconds ago');
+          chart.title('EUR.FOREX data started from Jan 2000 and 1 minute ticker\nThe last update was: ' + timer + ' seconds ago');
         }, 1000);
       }
 
@@ -961,100 +928,29 @@ function getInputLabelText(keyText) {
       }
     });
 
-    function priceTickDataHandler(data) {
-      var price = data.data.price;
-      //create empty array for point data update
-      var priceTickData = [];
-      priceTickData[0] = new Array(5);
-
-      //select the last point from existing datatable
-      var selectable = mapping.createSelectable();
-      selectable.selectAll();
-      var iterator = selectable.getIterator();
-
-      while (iterator.advance()) {
-        //put data from the last exsiting point
-        priceTickData[0][0] = iterator.get('x');
-        priceTickData[0][1] = iterator.get('open');
-        priceTickData[0][2] = iterator.get('high');
-        priceTickData[0][3] = iterator.get('low');
-        priceTickData[0][5] = iterator.get('value');
-      }
-
-      priceTickData[0][4] = price;
-      //update min and max
-      if (priceTickData[0][2] < price) {
-        priceTickData[0][2] = price;
-      } else if (priceTickData[0][3] > price) {
-        priceTickData[0][3] = price;
-      }
-
-      //set ipdated data row to datatable
-      dataTable.addData(priceTickData);
-    }
-
     function historyDataHandler(data) {
-      //helper to format timestamp from vendor
-      //vendor uses seconds from 1.01.1970 for timestamp
-      var tempData = data.data;
-      tempData.forEach(function(row) {
-        row[0] *= 1000;
-      });
-      // add new data
-      dataTable.addData(tempData);
-      // map the data
-      mapping = dataTable.mapAs({
-        x: 0,
-        open: 1,
-        high: 2,
-        low: 3,
-        close: 4,
-        value: {
-          column: 5
-        }
-      });
-
-      //set mapping to both series
-      series.data(mapping);
-      volumeSeries.data(mapping);
+      // the last item in not a valid data point
+      data.pop();
+      //add data to OHLCV chart
+      dataTable.addData(data);
     }
 
     function oneMinuteDataHandler(data) {
       /* due to different data format provided
               by vendor for different subscriptions
-               data needs to be formatted to any default view  */
-      var oneMinData = [];
-      oneMinData[0] = new Array(5);
-      oneMinData[0][0] = data.data.time * 1000;
-      oneMinData[0][1] = data.data.o;
-      oneMinData[0][2] = data.data.h;
-      oneMinData[0][3] = data.data.l;
-      oneMinData[0][4] = data.data.c;
-      oneMinData[0][5] = data.data.v;
+               // data needs to be formatted to any default view  */
+      var oneMinData = {};
+      oneMinData['Date'] = data.timestamp * 1000;
+      oneMinData['Open'] = data.open;
+      oneMinData['High'] = data.high;
+      oneMinData['Low'] = data.low;
+      oneMinData['Close'] = data.close;
       //add formatted data to OHLCV chart
-      dataTable.addData(oneMinData);
+      dataTable.addData([oneMinData]);
+      //set mapping to the series
+      series.data(mapping);
     }
 
-  }
-
-  function createVolumeSeries(plot) {
-
-    //create volume series
-    var volumeSeries = plot.column().name('Volume');
-    volumeSeries.id("VolumeSeries");
-    volumeSeries.zIndex(100)
-      .maxHeight('25%')
-      .bottom(0);
-    volumeSeries.legendItem({
-      textOverflow: '',
-      iconEnabled: false
-    });
-
-    var customScale = anychart.scales.log();
-    // sets y-scale
-    volumeSeries.yScale(customScale);
-
-    return volumeSeries;
   }
 
   function removeChart() {
