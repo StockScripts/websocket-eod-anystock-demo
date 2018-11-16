@@ -6,7 +6,7 @@ This demo shows how to use AnyStock charts with real-time data and apply analysi
 AnyStock offers a large set of features, that allow you to build your online financial portal and one of the most exciting features is the ability to draw/display on the chart so called drawing tools or, as they are called in our [documentation](https://docs.anychart.com/) and settings, annotations. Also, any financial portal should provide technical indicators to analyze chart and indicate market direction. AnyStock charts are ready to use with real-time data. All you need is to choose data vendor and preferable transfer protocol.
 
 ## Demonstrated features
-* The real-time data is provided by [CEXIO](https://cex.io/). The data is loaded with Secured WebSocket.
+* The real-time data is provided by [eodhistoricaldata](https://eodhistoricaldata.com/). The data is loaded with Secured WebSocket.
 * [Technical indicators](https://docs.anychart.com/Stock_Charts/Technical_Indicators/Overview).
 * [Drawing Tools and Annotations](https://docs.anychart.com/Stock_Charts/Drawing_Tools_and_Annotations/Overview). All annotations can be saved to local storage by click on `Save Annotations` button on the toolbar. This allows users to restore all annotations if the page was reloaded or theme or chart settings were changed.
 * Changing theme setting on fly.
@@ -18,12 +18,12 @@ To use this sample you must have package manager for Node.js - NPM installed. If
 **To start this example run commands listed below.**
 Clone the repository from github.com:
 ```bash
-git clone git@github.com:anychart-integrations/websocket-cexio-anystock-demo.git
+git clone git@github.com:anychart-integrations/websocket-eod-anystock-demo.git
 ```
 
 Navigate to the demo folder:
 ```bash
-cd websocket-cexio-anystock-demo
+cd websocket-eod-anystock-demo
 ```
 
 Install dependencies:
@@ -31,7 +31,7 @@ Install dependencies:
 npm install
 ```
 
-Run the nodejs server which establishes a secure WebSocket connection to the data vendor CEXIO and forwards received data to the client side:
+Run the nodejs server which establishes a secure WebSocket connection to the data vendor EOD and forwards received data to the client side:
 ```bash
 node server.js
 ```
