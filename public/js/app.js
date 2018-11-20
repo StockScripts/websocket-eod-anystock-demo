@@ -540,7 +540,9 @@ function getInputLabelText(keyText) {
                 }
               };
             } else {
-              drawingSettings.fill = colorFill;
+              drawingSettings.fill = {};
+              drawingSettings.fill.color = colorFill;
+              drawingSettings.fill.opacity = 0.3;
               drawingSettings.stroke = strokeSettings;
               drawingSettings.hovered = {
                 stroke: strokeSettings
@@ -660,7 +662,7 @@ function getInputLabelText(keyText) {
     });
 
     $('html').keyup(function(e) {
-      if (e.keyCode === 8 || e.keyCode === 46) {
+      if (e.keyCode === 93 || e.keyCode === 46) {
         removeSelectedAnnotation();
       }
     });
@@ -978,7 +980,7 @@ function getInputLabelText(keyText) {
 
         switch ($(this).data('color')) {
           case 'fill':
-            annotation.fill(color, 0.5);
+            annotation.fill(color, 0.3);
             break;
           case 'stroke':
             strokeWidth = annotation.stroke().thickness || STROKE_WIDTH;
@@ -1077,7 +1079,7 @@ function getInputLabelText(keyText) {
       colorFill = $colorPickerFill.find('.color-fill-icon').css('background-color');
 
       if (colorFill.indexOf('a') === -1) {
-        colorFill = colorFill.replace('rgb', 'rgba').replace(')', ', 0.5)');
+        colorFill = colorFill.replace('rgb', 'rgba').replace(')', ', 0.3)');
       }
       if ($strokeSettings.val()) {
         switch ($strokeSettings.val()[0]) {
