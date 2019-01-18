@@ -469,12 +469,12 @@ anychart.onDocumentReady(function() {
 	// event to add indicator
 	$addIndicatorBtn.on('click', function() {
 		var mapping = dataTable.mapAs({
-			value: 1,
-			volume: 1,
-			open: 1,
-			high: 2,
-			low: 3,
-			close: 4
+			open: 'Open',
+			high: 'High',
+			low: 'Low',
+			close: 'Close',
+			value: 'Close',
+			volume: 'Close'
 		});
 		var indicator = indicatorsSettings.defaultSettings[indicatorsSettings.name];
 		var settings = [mapping];
