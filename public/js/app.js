@@ -970,8 +970,14 @@ function createChart(container, updateChart) {
 		open: 'Open',
 		high: 'High',
 		low: 'Low',
-		close: 'Close'
+		close: 'Close',
+		value: 'Close'
 	});
+
+	// create scroller series
+	chart.scroller().area(mapping)
+	.color('#253992 0.3')
+	.stroke('#253992');
 
 	// creates an Application to work with socket
 	//start COMET connection
@@ -1017,6 +1023,9 @@ function createChart(container, updateChart) {
 
 					// history data
 					if (Array.isArray(data)) {
+						if (rangePicker.getElement()) {
+							rangePicker.dispose();
+						}
 						historyDataHandler(data);
 						rangePicker.render(chart);
 					}
