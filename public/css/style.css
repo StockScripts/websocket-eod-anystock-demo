@@ -25,18 +25,26 @@ header img {
 
 .toolbar {
     float: left;
-    width: 20%;
-    padding-left: 5px;
+    width: 45px;
+    padding: 0 5px;
 }
 
 #chart-container {
     float: left;
-    width: 80%;
+    width: calc(100% - 45px);
     /*height: 100%;*/
 }
 
 html body #chart-container {
     /*height: 100%;*/
+}
+
+.btn-block {
+    margin-bottom: 5px;
+}
+
+.tooltip {
+    white-space: nowrap;
 }
 
 #annotation-label {
@@ -51,7 +59,7 @@ html body #chart-container {
 }
 
 .color-fill-icon {
-    display: inline-block;
+    display: block;
     width: 16px;
     height: 16px;
     border: 1px solid #000;
@@ -60,15 +68,8 @@ html body #chart-container {
 }
 
 .colorpickerplus-custom-colors,
-.colorpickerplus .input-group {
+.colorpickerplus-container .input-group {
     display: none;
-}
-
-.dropdown-color-fill-icon {
-    float: left;
-    position: relative;
-    margin-left: 0;
-    margin-right: 0
 }
 
 .title-drawing-tools {
@@ -112,23 +113,6 @@ html body #chart-container {
     border-color: #b94a48;
 }
 
-.bootstrap-select.fit-width {
-    width: auto !important;
-}
-
-.bootstrap-select.form-control {
-    margin-bottom: 0;
-    padding: 0;
-}
-
-.bootstrap-select .dropdown-toggle {
-    height: 34px;
-    padding: 8px 16px;
-    font-weight: 400;
-    border-color: #c5c8d1;
-    background: #fff;
-}
-
 .filter-option {
     font-size: 14px;
     float: left;
@@ -137,6 +121,26 @@ html body #chart-container {
 .btn-group-container {
     display: inline-block;
     padding-top: 5px;
+}
+
+.btn-group.auto-width {
+    min-width: 180px;
+}
+
+.btn-group.auto-width button span {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    line-height: 10px;
+    max-width: 0;
+    height: 0;
+    transition: all .5s;
+}
+
+.btn-group.auto-width button:hover span {
+    max-width: 100px;
+    height: auto;
+    transition: all .5s;
 }
 
 .select .ac {
@@ -188,6 +192,46 @@ html body #chart-container {
 button.dropdown-toggle {
     padding-left: 13px !important;
     padding-right: 25px !important;
+}
+
+.choose-marker .dropdown-menu,
+.dropdown-menu.right {
+    top: 0;
+    left: 100%;
+}
+
+.dropdown-menu.right button {
+    margin-bottom: 5px;
+}
+
+.choose-marker .open .dropdown-menu,
+.open>.dropdown-menu.right {
+    display: flex;
+    flex-flow: column;
+    min-width: 0;
+    padding: 5px;
+}
+
+.colorpickerplus-dropdown.open>.dropdown-menu.right {
+    min-width: 195px;
+}
+
+.btn-default.color-picker {
+    padding: 6px 9px;
+    line-height: 1;
+}
+
+.choose-marker .dropdown-menu {
+    padding: 5px;
+    overflow: visible !important;
+}
+
+.choose-marker .dropdown-menu a {
+    padding: 6px 12px;
+}
+
+#settingsPanel {
+    padding: 20px 0;
 }
 
 /*Loader------------------------------------------------------------------------------------------------------------------------------------*/
@@ -334,29 +378,29 @@ button.dropdown-toggle {
     display: table;
 }
 
-#indicatorNavPanel.list-nav {
+.list-nav {
     padding-left: 15px;
     padding-top: 5px;
     padding-right: 25px;
 }
 
-#indicatorNavPanel.list-nav > li {
+.list-nav > li {
     display: inline-block;
     margin-right: 5px;
 }
 
 @media screen and (max-width: 1200px) {
-    #indicatorNavPanel > li {
+    .list-nav > li {
         margin-bottom: 10px;
     }
 }
 
 @media screen and (max-width: 769px) {
-    #indicatorNavPanel.list-nav > li {
+    .list-nav > li {
         display: block;
     }
 
-    #indicatorNavPanel.list-nav div.select.bootstrap-select {
+    .list-nav div.select.bootstrap-select {
         width: 100% !important;
     }
 
