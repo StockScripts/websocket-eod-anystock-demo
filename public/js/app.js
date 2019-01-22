@@ -1,64 +1,3 @@
-function setColClass($el) {
-	// column count for row
-	var ROW_COUNT = 12;
-	var COLUMN_COUNT = 3;
-	var index = $el.find('.col-sm-4').length;
-	var lastIndex = $el
-		.find('.col-sm-4')
-		.last()
-		.index();
-	var colClass;
-
-	if (index === COLUMN_COUNT) {
-		return;
-	}
-
-	if (index > COLUMN_COUNT) {
-		while (index > COLUMN_COUNT) {
-			index -= COLUMN_COUNT;
-		}
-	}
-
-	colClass = ROW_COUNT / index;
-
-	while (index) {
-		--index;
-		$el
-			.find($("[class*='col-sm-']"))
-			.eq(lastIndex - index)
-			.removeClass('col-sm-4')
-			.addClass('col-sm-' + colClass);
-	}
-}
-
-function getInputLabelText(keyText) {
-	var text = '';
-	var result = [];
-
-	keyText.split(/(?=[A-Z])/).filter(function(item) {
-		if (item.length === 1) {
-			text += item;
-		} else {
-			text += ' ';
-			text += item;
-		}
-	});
-	text = text.trim();
-	text = text[0].toUpperCase() + text.substr(1);
-
-	text.split(' ').filter(function(item, index) {
-		if (item.length === 1 && index !== text.split(' ').length - 1) {
-			result.push(item + '-');
-		} else {
-			result.push(item);
-		}
-	});
-
-	return result.join(' ').replace(/-\s/, '-');
-}
-
-initTooltip('bottom');
-
 var toolsButton = $('#tools').html();
 
 var $strokeSettings = $('.strokeSettings');
@@ -86,186 +25,18 @@ $strokeSettings
 		$strokeSettings.filter('.dash').selectpicker('refresh');
 	});
 
+$('#select-font-style').on('changed.bs.select refreshed.bs.select', function(evt) {
+	var icons = $(evt.target).next().find('.filter-option-inner-inner').find('i');
+	$(evt.target).next().find('.filter-option-inner-inner').html('');
+	for (icon of icons) {
+		$(evt.target).next().find('.filter-option-inner-inner').append(icon);
+	}
+});
+
 // page UI elements
 createPageColorPicker();
 
-var $seriesTypeSelect = $('#seriesTypeSelect');
-var $indicatorTypeSelect = $('#indicatorTypeSelect');
-var $indicatorSettingsModal = $('#indicatorSettingsModal');
-var $resetBtn = $('#resetButton');
-var $addIndicatorBtn = $('#addIndicatorButton');
-var $indicatorNavPanel = $('#indicatorNavPanel');
-var $indicatorForm = $('#indicatorForm');
-var $loader = $('#loader');
-var $themeSelect = $('#themeSelect');
 
-var appSettingsCache = {};
-appSettingsCache['data'] = {};
-appSettingsCache['chartType'] = $seriesTypeSelect.val();
-appSettingsCache['indicators'] = {};
-
-var chartContainer = 'chart-container';
-
-var indicatorsSettings = {
-	name: '',
-	plotIndex: 0,
-	defaultSettings: {},
-	seriesType: [
-		'area',
-		'column',
-		'jump-line',
-		'line',
-		'marker',
-		'spline',
-		'spline-area',
-		'step-area',
-		'step-line',
-		'stick',
-		'range-area',
-		'candlestick',
-		'ohlc'
-	]
-};
-//
-var chart;
-var dataTable;
-var mapping;
-var indicatorlist = [];
-//default theme after launch
-var theme = $themeSelect.val();
-//seconds counter
-var timer = 0;
-var secondCounter = null;
-
-var inputHtml =
-	'<div class="col-sm-4">' +
-	'<div class="form-group" id="indicatorFormGroup">' +
-	'<label for="" class="control-label"></label>' +
-	'<input type="number" class="form-control" id="">' +
-	'</div>' +
-	'</div>';
-
-var selectHtml =
-	'<div class="col-sm-4">' +
-	'<div class="form-group" id="indicatorFormGroup">' +
-	'<label for="" class="control-label"></label>' +
-	'<select class="form-control select show-tick" id=""></select>' +
-	'</div>' +
-	'</div>';
-
-var app = {
-	createChart: createChart,
-	removeChart: removeChart
-};
-
-// this Sample will properly work only if upload it to a server and access via http or https
-if (window.location.protocol === 'file:') {
-	$loader.hide();
-	$('.wrapper').hide();
-	$('#warning').modal({
-		backdrop: 'static',
-		keyboard: false
-	});
-}
-
-// get indicators from file indicators.xml
-fetch('indicators.xml')
-	.then(function(res) {
-		return res.text();
-	})
-	.then(function(str) {
-		return new window.DOMParser().parseFromString(str, 'text/xml');
-	})
-	.then(function(data) {
-		$(data)
-			.find('indicator')
-			.each(function(index, item) {
-				var indicatorName = $(this).attr('type');
-				var description;
-				var $option = $('<option></option>');
-
-				// create option and append to indicator type select
-				$option
-					.attr({
-						value: indicatorName,
-						title: $(this)
-							.find('abbreviation')
-							.text(),
-						'data-abbr': $(this)
-							.find('abbreviation')
-							.text(),
-						'data-full-text': $(this)
-							.find('title')
-							.text(),
-						'data-plot': $(this)
-							.find('plotIndex')
-							.text()
-					})
-					.text(
-						$(this)
-							.find('title')
-							.text()
-					);
-
-				if ($(this).find('[name="plotIndex"]').length) {
-					$option.attr(
-						'data-plot-index',
-						$(this)
-							.find('[name="plotIndex"]')
-							.attr('value')
-					);
-				}
-
-				$indicatorTypeSelect.append($option);
-
-				indicatorsSettings['defaultSettings'][indicatorName] = {};
-
-				// set indicator settings to indicator object
-				$(item)
-					.find('defaults')
-					.children()
-					.each(function() {
-						var prop = $(this).attr('name');
-						var value = $(this).attr('value');
-
-						switch ($(this).attr('type')) {
-							case 'number':
-								value = +value;
-								break;
-							case 'array':
-								value = JSON.parse(value);
-								break;
-						}
-
-						indicatorsSettings['defaultSettings'][indicatorName][prop] = value;
-					});
-
-				// description from xml
-				description = $(item)
-					.find('description')
-					.text();
-
-				// save indicator overview
-				indicatorsSettings['defaultSettings'][indicatorName]['overview'] = {};
-				indicatorsSettings['defaultSettings'][indicatorName]['overview'][
-					'title'
-				] = $(item)
-					.find('title')
-					.text();
-				indicatorsSettings['defaultSettings'][indicatorName]['overview'][
-					'description'
-				] = description;
-			});
-
-		// sort option in select
-		var options = $indicatorTypeSelect.find('option').sort(function(a, b) {
-			return a.text.toUpperCase().localeCompare(b.text.toUpperCase());
-		});
-		$indicatorTypeSelect.append(options);
-
-		// init selectpicker
-		$indicatorTypeSelect.selectpicker();
-	});
 
 $(window).on('resize', initHeightChart);
 
@@ -304,7 +75,7 @@ anychart.onDocumentReady(function() {
 			localStorage.setItem('annotationsList' + plotIndex, json);
 		}
 
-		$('.btn[data-action-type]')['3'].className = 'btn btn-default disabled';
+		$('.btn[data-action-type = "saveAnno"]').addClass('disabled');
 
 		var currentRange = {};
 		currentRange.min = chart.xScale().getMinimum();
@@ -326,13 +97,31 @@ anychart.onDocumentReady(function() {
 		$indicatorTypeSelect.val('').selectpicker('refresh');
 		// init, create chart
 		app.createChart(chartContainer, true);
+
+		var mapping = dataTable.mapAs({
+			open: 'Open',
+			high: 'High',
+			low: 'Low',
+			close: 'Close',
+			value: 'Close',
+			volume: 'Close'
+		});
+		for (var key in appSettingsCache['indicators']) {
+			var indicatorName = key;
+			var settings = [mapping];
+			var plot = chart.plot(appSettingsCache['indicators'][key].plotIndex);
+			plot[indicatorName].apply(plot, settings);
+			// adding extra Y axis to the right side
+			plot.yAxis(1).orientation('right');
+		}
+
+		// create scroller series
+		chart.scroller().area(mapping);
 	});
 
 	// event to show modal indicator settings
 	$indicatorTypeSelect.on('change', function() {
 		//saving annotations from all plots
-
-		// console.log(appSettingsCache['indicators']);
 		var json;
 		json = chart
 			.plot(0)
@@ -352,7 +141,7 @@ anychart.onDocumentReady(function() {
 			$(this).val() === null ||
 			$(this).val().length < Object.keys(appSettingsCache.indicators).length
 		) {
-			$('.btn[data-action-type]')['3'].className = 'btn btn-default disabled';
+			$('.btn[data-action-type = "saveAnno"]').addClass('disabled');
 
 			var currentRange = {};
 			currentRange.min = chart.xScale().getMinimum();
@@ -408,34 +197,30 @@ anychart.onDocumentReady(function() {
 	});
 
 	// remove selected class, if indicator not selected
-	$indicatorSettingsModal.on('hidden.bs.modal', function() {
-		var lastAddedIndicator;
-
-		for (var i = 0; i < $indicatorTypeSelect.val().length; i++) {
-			if (
-				!~Object.keys(appSettingsCache.indicators).indexOf(
-					$indicatorTypeSelect.val()[i]
-				)
-			) {
-				// set indicator name
-				lastAddedIndicator = $indicatorTypeSelect.val()[i];
-				break;
+	$indicatorSettingsModal.find('button').on('click', function(e) {
+		if ($(e.currentTarget).data('dismiss')) {
+			var lastAddedIndicator;
+	
+			for (var i = 0; i < $indicatorTypeSelect.val().length; i++) {
+				if (
+					!~Object.keys(appSettingsCache.indicators).indexOf(
+						$indicatorTypeSelect.val()[i]
+					)
+				) {
+					// set indicator name
+					lastAddedIndicator = $indicatorTypeSelect.val()[i];
+					break;
+				}
 			}
+	
+			var indexOption = $indicatorTypeSelect.val().indexOf(lastAddedIndicator);
+
+			var selectValues = $indicatorTypeSelect.val();
+			selectValues.splice(indexOption, 1);
+
+			$indicatorTypeSelect.val(selectValues);
+			$indicatorTypeSelect.selectpicker('render');
 		}
-
-		var indexOption = $indicatorTypeSelect
-			.find('[value="' + lastAddedIndicator + '"]')
-			.index();
-
-		// unselect option
-		$indicatorTypeSelect
-			.find('[value="' + lastAddedIndicator + '"]')
-			.removeAttr('selected');
-		// remove selected class
-		$indicatorTypeSelect
-			.prev('.dropdown-menu')
-			.find('li[data-original-index="' + indexOption + '"]')
-			.removeClass('selected');
 	});
 
 	// init selectpicker to all select in indicator settings modal
@@ -448,8 +233,8 @@ anychart.onDocumentReady(function() {
 		e.preventDefault();
 
 		//set default theme
-		$themeSelect.selectpicker('val', 'darkTurquoise');
-		theme = 'darkTurquoise';
+		$themeSelect.selectpicker('val', 'darkEarth');
+		theme = 'darkEarth';
 
 		app.removeChart();
 		// reset saved settings
@@ -560,7 +345,7 @@ anychart.onDocumentReady(function() {
 					strokeDash = null;
 					break;
 				case 'dotted':
-					strokeDash = '1 1';
+					strokeDash = `${strokeWidth} ${strokeWidth}`;
 					break;
 				case 'dashed':
 					strokeDash = '10 5';
@@ -701,7 +486,7 @@ anychart.onDocumentReady(function() {
 					localStorage.setItem('annotationsList' + plotIndex, json);
 				}
 
-				$('.btn[data-action-type]')['3'].className = 'btn btn-default disabled';
+				$(evt.target).addClass('disabled');
 				break;
 		}
 	});
@@ -765,13 +550,9 @@ function selectTools(toolbarType) {
 }
 
 function initHeightChart() {
-	var creditsHeight = 10;
 	var panelHeight = $('#settingsPanel').outerHeight();
 	$('#chart-container').height(
-		$(window).height() -
-			$indicatorNavPanel.outerHeight() -
-			creditsHeight -
-			panelHeight - 40
+		$(window).height() - 103
 	);
 }
 
@@ -821,14 +602,10 @@ function createChart(container, updateChart) {
 	chart.listen('annotationUnSelect', function() {
 		$('.color-picker[data-color="fill"]').removeAttr('disabled');
 		$('.select-marker-size').removeAttr('disabled');
-		$('.drawing-tools-solo')
-			.find('.bootstrap-select')
-			.each(function() {
-				$(this).removeClass('open');
-			});
+		$('[data-action-type="removeSelectedAnnotation"]').addClass('disabled');
 	});
 	chart.listen('annotationChangeFinish', function() {
-		$('.btn[data-action-type]')['3'].className = 'btn btn-default';
+		$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
 	});
 
 	// add textarea for label annotation and listen events
@@ -974,11 +751,6 @@ function createChart(container, updateChart) {
 		value: 'Close'
 	});
 
-	// create scroller series
-	chart.scroller().area(mapping)
-	.color('#253992 0.3')
-	.stroke('#253992');
-
 	// creates an Application to work with socket
 	//start COMET connection
 	if (!updateChart) {
@@ -1092,6 +864,9 @@ function createChart(container, updateChart) {
 		dataTable.addData([oneMinData]);
 		//set mapping to the series
 		series.data(mapping);
+
+		// create scroller series
+		chart.scroller().area(mapping);
 	}
 }
 
@@ -1202,7 +977,7 @@ function removeAllAnnotation() {
 
 function onAnnotationDrawingFinish() {
 	setToolbarButtonActive(null);
-	$('.btn[data-action-type]')['3'].className = 'btn btn-default';
+	$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
 }
 
 function onAnnotationSelect(evt) {
@@ -1280,7 +1055,7 @@ function onAnnotationSelect(evt) {
 				strokeDash = null;
 				break;
 			case 'dotted':
-				strokeDash = '1 1';
+				strokeDash = `${strokeWidth} ${strokeWidth}`;
 				break;
 			case 'dashed':
 				strokeDash = '10 5';
@@ -1341,10 +1116,11 @@ function onAnnotationSelect(evt) {
 			strokeDash = 'solid';
 			break;
 	}
-
-	$colorPickerFill
-		.find('.color-fill-icon')
-		.css('background-color', colorFill.color);
+	if (colorFill) {
+		$colorPickerFill
+			.find('.color-fill-icon')
+			.css('background-color', colorFill.color);
+	}
 	$colorPickerStroke
 		.find('.color-fill-icon')
 		.css('background-color', colorStroke);
@@ -1352,6 +1128,8 @@ function onAnnotationSelect(evt) {
 		.find('.color-fill-icon')
 		.css('background-color', fontColor);
 	$strokeSettings.val([strokeWidth, strokeDash]).selectpicker('refresh');
+
+	$('[data-action-type="removeSelectedAnnotation"]').removeClass('disabled');
 }
 
 function contextMenuItemsFormatter(items) {
@@ -1449,7 +1227,8 @@ function setAnnotationStrokeSettings(annotation, settings) {
 
 function initTooltip(position) {
 	$(document).ready(function() {
-		$('[data-toggle="tooltip"]').tooltip({
+		$('[data-title]').tooltip({
+			trigger: 'hover',
 			placement: position,
 			animation: false
 		});
@@ -1484,113 +1263,15 @@ function normalizeFontSettings(val) {
 	return fontMethods;
 }
 
-function createHtmlToIndicatorForm() {
-	var $indicatorFormGroup;
-	var indicatorSettings =
-		indicatorsSettings.defaultSettings[indicatorsSettings.name];
-	var $option;
-	var i = 0;
-
-	$('#indicatorSettingsModalTitle').text(
-		indicatorsSettings.defaultSettings[indicatorsSettings.name].overview.title
-	);
-
-	// empty form
-	$indicatorForm.empty();
-	// create row
-	$indicatorForm.append('<div class="row"></div>');
-	var $indicatorFormRow = $indicatorForm.find('.row');
-
-	for (var key in indicatorSettings) {
-		if (
-			indicatorSettings.hasOwnProperty(key) &&
-			key !== 'overview' &&
-			key !== 'plotIndex'
-		) {
-			if (typeof indicatorSettings[key] === 'string') {
-				$indicatorFormRow.append(selectHtml);
-				$indicatorFormGroup = $('#indicatorFormGroup');
-				$indicatorFormGroup.find('select').attr('id', key);
-				$indicatorFormGroup
-					.find('label')
-					.attr('for', key)
-					.text(getInputLabelText(key));
-
-				for (i = 0; i < indicatorsSettings.seriesType.length; i++) {
-					$option = $('<option></option>');
-					$option.val(indicatorsSettings.seriesType[i].toLowerCase());
-					$option.text(getInputLabelText(indicatorsSettings.seriesType[i]));
-					$indicatorFormGroup.find('select').append($option);
-				}
-
-				$indicatorFormGroup.removeAttr('id');
-			} else if (typeof indicatorSettings[key] === 'number') {
-				$indicatorFormRow.append(inputHtml);
-				$indicatorFormGroup = $('#indicatorFormGroup');
-				$indicatorFormGroup.find('input').attr('id', key);
-
-				$indicatorFormGroup
-					.removeAttr('id')
-					.find('label')
-					.attr('for', key)
-					.text(getInputLabelText(key));
-			} else if (typeof indicatorSettings[key] === 'object') {
-				$indicatorFormRow.append(selectHtml);
-				$indicatorFormGroup = $('#indicatorFormGroup');
-				$indicatorFormGroup.find('select').attr('id', key);
-				$indicatorFormGroup
-					.find('label')
-					.attr('for', key)
-					.text(getInputLabelText(key));
-
-				for (i = 0; i < indicatorSettings[key].length; i++) {
-					$option = $('<option></option>');
-					$option.val(indicatorSettings[key][i].toLowerCase());
-					$option.text(indicatorSettings[key][i]);
-					$indicatorFormGroup.find('select').append($option);
-				}
-
-				$indicatorFormGroup.removeAttr('id');
-			}
-		}
+$('.selectpicker').on('loaded.bs.select', function(e) {
+	var btn = $(e.target).next('button')
+	if (btn.length) {
+		$(btn).tooltip({
+			trigger: 'hover',
+			placement: 'bottom'
+		});
+		$(btn).attr('data-original-title', $(e.target).data('tooltip-title'))
 	}
-
-	// col class to form el
-	setColClass($indicatorForm);
-	// indicator overview text
-	if ($indicatorForm.find($("[class*='col-sm-']")).length == 0) {
-		$indicatorForm
-			.find($('[class="row"]'))
-			.append('<div class="col-xs-12" id="overviewText"></div>');
-	} else {
-		$indicatorForm
-			.find($("[class*='col-sm-']"))
-			.last()
-			.after('<div class="col-xs-12" id="overviewText"></div>');
-	}
-	$indicatorForm
-		.find('#overviewText')
-		.append(
-			indicatorsSettings.defaultSettings[indicatorsSettings.name].overview
-				.description
-		);
-}
-
-function setDefaultIndicatorSettings() {
-	var indicatorSettings =
-		indicatorsSettings.defaultSettings[indicatorsSettings.name];
-
-	for (var key in indicatorSettings) {
-		if (
-			indicatorSettings.hasOwnProperty(key) &&
-			key !== 'overview' &&
-			key !== 'plotIndex'
-		) {
-			$('#' + key).val(indicatorSettings[key]);
-		}
-	}
-}
-
-$('.tools-dropdown').on('hide.bs.dropdown', function() {
-	// do something…
 });
+
+initTooltip('bottom');
