@@ -35,16 +35,10 @@ var indicatorsSettings = {
 		'ohlc'
 	]
 };
-//
-var chart;
-var dataTable;
-var mapping;
+
 var indicatorlist = [];
 //default theme after launch
 var theme = $themeSelect.val();
-//seconds counter
-var timer = 0;
-var secondCounter = null;
 
 var inputHtml =
 	'<div class="col-sm-4">' +
@@ -61,11 +55,6 @@ var selectHtml =
 	'<select class="form-control form-control-sm select show-tick" data-style="btn-sm" id=""></select>' +
 	'</div>' +
 	'</div>';
-
-var app = {
-	createChart: createChart,
-	removeChart: removeChart
-};
 
 // this Sample will properly work only if upload it to a server and access via http or https
 if (window.location.protocol === 'file:') {
@@ -175,6 +164,247 @@ fetch('indicators.xml')
 		// init selectpicker
 		$indicatorTypeSelect.selectpicker();
 	});
+
+// event to set theme
+$themeSelect.on('change', function() {
+	theme = $(this).val();
+
+	var json = chart
+		.plot(0)
+		.annotations()
+		.toJson(true);
+	localStorage.setItem('annotationsList0', json);
+	for (var key in appSettingsCache['indicators']) {
+		var plotIndex = appSettingsCache['indicators'][key].plotIndex;
+		json = chart
+			.plot(plotIndex)
+			.annotations()
+			.toJson(true);
+		localStorage.setItem('annotationsList' + plotIndex, json);
+	}
+
+	$('.btn[data-action-type = "saveAnno"]').addClass('disabled');
+
+	var currentRange = {
+		min: chart.xScale().getMinimum(),
+		max: chart.xScale().getMaximum()
+	};
+	json = JSON.stringify(currentRange);
+	localStorage.setItem('currentRange', json);
+
+	chart
+		.plot()
+		.annotations()
+		.removeAllAnnotations();
+
+	app.removeChart();
+	// reset saved settings
+	appSettingsCache['chartType'] = 'line';
+	// select series type
+	$seriesTypeSelect.val('candlestick').selectpicker('refresh');
+	// reset indicators select
+	$indicatorTypeSelect.val('').selectpicker('refresh');
+	// init, create chart
+	app.createChart(chartContainer, true);
+
+	mapping = dataTable.mapAs({
+		open: 'Open',
+		high: 'High',
+		low: 'Low',
+		close: 'Close',
+		value: 'Close',
+		volume: 'Close'
+	});
+	for (var key in appSettingsCache['indicators']) {
+		var indicatorName = key;
+		var settings = [mapping];
+		var plot = chart.plot(appSettingsCache['indicators'][key].plotIndex);
+		plot[indicatorName].apply(plot, settings);
+		// adding extra Y axis to the right side
+		plot.yAxis(1).orientation('right');
+	}
+
+	// create scroller series
+	chart.scroller().area(mapping);
+});
+
+// event to show modal indicator settings
+$indicatorTypeSelect.on('change', function() {
+	//saving annotations from all plots
+	var json;
+	json = chart
+		.plot(0)
+		.annotations()
+		.toJson(true);
+	localStorage.setItem('annotationsList0', json);
+	for (var key in appSettingsCache['indicators']) {
+		var plotIndex = appSettingsCache['indicators'][key].plotIndex;
+		json = chart
+			.plot(plotIndex)
+			.annotations()
+			.toJson(true);
+		localStorage.setItem('annotationsList' + plotIndex, json);
+	}
+
+	if (
+		$(this).val() === null ||
+		$(this).val().length < Object.keys(appSettingsCache.indicators).length
+	) {
+		$('.btn[data-action-type = "saveAnno"]').addClass('disabled');
+
+		var currentRange = {};
+		currentRange.min = chart.xScale().getMinimum();
+		currentRange.max = chart.xScale().getMaximum();
+		json = JSON.stringify(currentRange);
+		localStorage.setItem('currentRange', json);
+
+		app.removeChart();
+
+		if ($(this).val() !== null) {
+			for (var keyIndicator in appSettingsCache.indicators) {
+				if (
+					!~$(this)
+						.val()
+						.indexOf(keyIndicator)
+				) {
+					delete appSettingsCache.indicators[keyIndicator];
+				}
+			}
+		} else {
+			appSettingsCache.indicators = {};
+		}
+
+		app.createChart(chartContainer, true);
+
+		return;
+	}
+
+	for (var i = 0; i < $(this).val().length; i++) {
+		if (
+			!~Object.keys(appSettingsCache.indicators).indexOf($(this).val()[i])
+		) {
+			// set indicator name
+			indicatorsSettings.name = $(this).val()[i];
+			break;
+		}
+	}
+
+	// set plot index
+	indicatorsSettings.plotIndex = $(this)
+		.find('option[value="' + indicatorsSettings.name + '"]')
+		.data().plotIndex;
+
+	// create html if form (input/select)
+	createHtmlToIndicatorForm();
+	// set default indicator settings to input/select
+	setDefaultIndicatorSettings();
+
+	// show indicator settings modal
+	$indicatorSettingsModal.modal('show');
+	// hide dropdown menu, select
+	$indicatorNavPanel.find('.select.open').removeClass('open');
+});
+
+// remove selected class, if indicator not selected
+$indicatorSettingsModal.find('button').on('click', function(e) {
+	if ($(e.currentTarget).data('dismiss')) {
+		var lastAddedIndicator;
+
+		for (var i = 0; i < $indicatorTypeSelect.val().length; i++) {
+			if (
+				!~Object.keys(appSettingsCache.indicators).indexOf(
+					$indicatorTypeSelect.val()[i]
+				)
+			) {
+				// set indicator name
+				lastAddedIndicator = $indicatorTypeSelect.val()[i];
+				break;
+			}
+		}
+
+		var indexOption = $indicatorTypeSelect.val().indexOf(lastAddedIndicator);
+
+		var selectValues = $indicatorTypeSelect.val();
+		selectValues.splice(indexOption, 1);
+
+		$indicatorTypeSelect.val(selectValues);
+		$indicatorTypeSelect.selectpicker('render');
+	}
+});
+
+// init selectpicker to all select in indicator settings modal
+$indicatorSettingsModal.on('show.bs.modal', function() {
+	$indicatorForm.find('.select').selectpicker();
+});
+
+// reset all settings
+$resetBtn.on('click', function(e) {
+	e.preventDefault();
+
+	//set default theme
+	$themeSelect.selectpicker('val', 'darkEarth');
+	theme = 'darkEarth';
+
+	app.removeChart();
+	// reset saved settings
+	appSettingsCache['indicators'] = {};
+	appSettingsCache['chartType'] = 'line';
+
+	// select series type
+	$seriesTypeSelect.val('candlestick').selectpicker('refresh');
+	// reset indicators select
+	$indicatorTypeSelect.val('').selectpicker('refresh');
+	// init, create chart
+	app.createChart(chartContainer, true);
+	//dismiss existing indicators
+	indicatorlist = [];
+});
+
+// event to add indicator
+$addIndicatorBtn.on('click', function() {
+	var mapping = dataTable.mapAs({
+		open: 'Open',
+		high: 'High',
+		low: 'Low',
+		close: 'Close',
+		value: 'Close',
+		volume: 'Close'
+	});
+	var indicator = indicatorsSettings.defaultSettings[indicatorsSettings.name];
+	var settings = [mapping];
+	var indicatorName = indicatorsSettings.name;
+
+	// for slow/fast stochastic
+	if (~indicatorName.toLowerCase().indexOf('stochastic')) {
+		indicatorName = 'stochastic';
+	}
+
+	for (let key in indicator) {
+		if (key !== 'overview' && key !== 'plotIndex') {
+			var val = $('#' + key).val();
+			val = val === 'true' || val === 'false' ? val === 'true' : val;
+			settings.push(val);
+		}
+	}
+
+	// save settings for indicator
+	appSettingsCache['indicators'][indicatorsSettings.name] = {};
+	appSettingsCache['indicators'][indicatorsSettings.name][
+		'settings'
+	] = settings;
+	appSettingsCache['indicators'][indicatorsSettings.name]['plotIndex'] =
+		indicatorsSettings.plotIndex;
+
+	var plot = chart.plot(indicatorsSettings.plotIndex);
+	plot[indicatorName].apply(plot, settings);
+	// adding extra Y axis to the right side
+	plot.yAxis(1).orientation('right');
+	// hide indicator settings modal
+	$indicatorSettingsModal.modal('hide');
+
+	//save indicator
+	indicatorlist.push(appSettingsCache['indicators'][indicatorsSettings.name]);
+});
 
 function getInputLabelText(keyText) {
 	var text = '';

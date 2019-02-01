@@ -125,11 +125,7 @@ header img {
 #chart-container {
     float: left;
     width: calc(100% - 60px);
-    /*height: 100%;*/
-}
-
-html body #chart-container {
-    /*height: 100%;*/
+    height: calc(100vh - 103px);
 }
 
 .btn-block {
@@ -468,11 +464,6 @@ button.dropdown-toggle {
 
 #indicatorForm h5 {
     font-weight: 600;
-    /*margin-bottom: 5px;*/
-}
-
-#indicatorForm p {
-    /*margin-bottom: 10px;*/
 }
 
 #indicatorForm label {

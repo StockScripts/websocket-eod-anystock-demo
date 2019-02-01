@@ -192,10 +192,10 @@
                                 <div class="col-auto">
                                     <div id="drawing" class="tools input-group input-group-sm flex-nowrap">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text">Annotation Type:</span>
+                                            <span class="input-group-text">Drawing Tools:</span>
                                         </div>
                                         <select class="select choose-drawing-tools selectpicker input-group-append"
-                                            data-annotation-type="drawing" title="Drawing tools" data-tooltip-title="Select drawing tool">
+                                            data-annotation-type="drawing" title="Select drawing tool" data-tooltip-title="Select drawing tool">
                                             <option data-icon="ac ac-line" value="line" aria-label="Center Align">
                                                 &emsp;Line Segment
                                                 </button>
@@ -348,7 +348,7 @@
                                                     </div>
                                                     <div class="dropdown colorpickerplus-dropdown stroke input-group-prepend">
                                                         <button type="button" id="fontColor" class="btn btn-secondary border-0 color-picker"
-                                                            data-color="fontColor" data-placement="bottom" title="Сhoose font color"
+                                                            data-color="fontColor" data-placement="bottom" data-title="Сhoose font color"
                                                             data-toggle="dropdown">
                                                             <span class="color-fill-icon dropdown-color-fill-icon"
                                                                 style="background-color:#333;"></span>
@@ -430,7 +430,7 @@
                                         </div>
                                         <div class="dropdown colorpickerplus-dropdown stroke input-group-prepend">
                                             <button type="button" id="stroke" class="btn btn-secondary border-0 color-picker"
-                                                data-color="stroke" data-placement="bottom" title="Сhoose drawing stroke color"
+                                                data-color="stroke" data-placement="bottom" data-title="Сhoose drawing stroke color"
                                                 data-toggle="dropdown">
                                                 <span class="color-fill-icon dropdown-color-fill-icon" style="background-color:#27A858;"></span>
                                             </button>
@@ -463,7 +463,7 @@
                                         </div>
                                         <div class="dropdown colorpickerplus-dropdown input-group-append">
                                             <button type="button" id="fill" class="btn btn-secondary border-0 color-picker dropdown-toggle"
-                                                data-color="fill" data-toggle="dropdown" data-placement="bottom" title="Сhoose drawing fill color">
+                                                data-color="fill" data-toggle="dropdown" data-placement="bottom" data-title="Сhoose drawing fill color">
                                                 <span class="color-fill-icon dropdown-color-fill-icon" style="background-color:#27A858;"></span>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="fill">
@@ -506,25 +506,25 @@
             <ul class="nav nav-pills flex-column">
                 <li role="presentation">
                     <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel"
-                        role="tab" data-toggle="tab" data-toolbar-type="drawing" data-title="Drawing tools">
+                        role="tab" data-toggle="tab" data-toolbar-type="drawing" data-title="Drawing tools" data-action-type="unSelectedAnnotation">
                         <i class="ac ac-andrews-pitchfork" aria-hidden="true"></i>
                     </a>
                 </li>
                 <li role="presentation">
                     <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel"
-                        role="tab" data-toggle="tab" data-toolbar-type="marker" data-title="Markers">
+                        role="tab" data-toggle="tab" data-toolbar-type="marker" data-title="Markers" data-action-type="unSelectedAnnotation">
                         <i class="ac ac-star-5" aria-hidden="true"></i>
                     </a>
                 </li>
                 <li role="presentation">
                     <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel"
-                        role="tab" data-toggle="tab" data-toolbar-type="label" data-title="Labels">
+                        role="tab" data-toggle="tab" data-toolbar-type="label" data-title="Labels" data-action-type="unSelectedAnnotation">
                         <i class="ac ac-font"></i>
                     </a>
                 </li>
                 <li role="presentation" class="active">
                     <a class="btn btn-sm btn-secondary border-0 btn-block" href="#indicator-panel" aria-controls="indicator-panel"
-                        role="tab" data-toggle="tab" data-title="Settings">
+                        role="tab" data-toggle="tab" data-title="Settings" data-action-type="unSelectedAnnotation">
                         <i class="ac ac-cog"></i>
                     </a>
                 </li>
@@ -586,8 +586,11 @@
     <script src="https://cdn.anychart.com/releases/v8/themes/wines.min.js"></script>
     <!---->
 
+    <script src="js/vendor/socket.io.js"></script>
     <script src="js/helpers.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/annotations.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/settingsToolbar.js"></script>
 </body>
 
