@@ -1,3 +1,6 @@
+/* global $, selectTools, chart, $annotationLabel, $fontSize, $labelMethod, $fontSettings, $strokeSettings, $markerSize */
+/* exported removeSelectedAnnotation, removeAllAnnotation, onAnnotationSelect, updatePropertiesBySelectedAnnotation, normalizeFontSettings */
+
 "use strict";
 function removeSelectedAnnotation() {
 	var annotation = chart.annotations().getSelectedAnnotation();
@@ -73,7 +76,7 @@ function onAnnotationSelect(evt) {
 		if (colorFill.indexOf('a') === -1) {
 			colorFill = colorFill.replace('rgb', 'rgba').replace(')', ', 0.3)');
 		}
-		strokeWidth = $strokeSettings.filter('.size').val() || STROKE_WIDTH;
+		strokeWidth = $strokeSettings.filter('.size').val() || 1;
 
 		strokeDash = $strokeSettings.filter('.dash').val();
 	} else {

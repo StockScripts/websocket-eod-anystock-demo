@@ -192,7 +192,7 @@ $themeSelect.on('change', function() {
 
 	app.removeChart();
 	// reset saved settings
-	appSettingsCache['chartType'] = 'line';
+	appSettingsCache['chartType'] = 'candlestick';
 	// select series type
 	$seriesTypeSelect.val('candlestick').selectpicker('refresh');
 	// reset indicators select
@@ -319,7 +319,6 @@ $indicatorSettingsModal.on('show.bs.modal', function() {
 
 // reset all settings
 $resetBtn.on('click', function(e) {
-	debugger;
 	e.preventDefault();
 
 	//set default theme
@@ -328,11 +327,13 @@ $resetBtn.on('click', function(e) {
 
 	app.removeChart();
 	// reset saved settings
-	appSettingsCache['indicators'] = {};
-	appSettingsCache['chartType'] = 'line';
-	// for (var key in localStorage) {
-	// 	localStorage.removeItem(key);
-	// }
+	appSettingsCache.indicators = {};
+	appSettingsCache.chartType = 'candlestick';
+	
+	const annotations = JSON.parse(localStorage.getItem('annotations'));
+	annotations.length = 1;
+	localStorage.setItem('annotations', JSON.stringify(annotations));
+	localStorage.setItem('indicators', JSON.stringify(appSettingsCache.indicators));
 
 	// select series type
 	$seriesTypeSelect.val('candlestick').selectpicker('refresh');
@@ -383,7 +384,7 @@ $addIndicatorBtn.on('click', function() {
 	plot.yAxis(1).orientation('right');
 	// hide indicator settings modal
 	$indicatorSettingsModal.modal('hide');
-	$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
+	$('.btn[data-action-type = "saveAll"]').removeClass('disabled');
 });
 
 function getInputLabelText(keyText) {
