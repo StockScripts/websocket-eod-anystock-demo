@@ -1,15 +1,14 @@
-var socket = io('http://localhost:8081');
-var $strokeSettings = $('.strokeSettings');
-var $annotationLabel;
-var $fontSize = $('#select-font-size');
-var $markerSize = $('#select-marker-size');
-var $fontSettings = $('#select-font-style');
-var $labelMethod = $('[data-label-method]');
+/*global $, io, anychart, chartContainer, $loader, $seriesTypeSelect, $indicatorTypeSelect, appSettingsCache, normalizeFontSettings, updatePropertiesBySelectedAnnotation, selectTools, removeAllAnnotation, removeSelectedAnnotation, theme, contextMenuItemsFormatter, onAnnotationSelect */
+"use strict";
 
-var chart;
-var dataTable;
-var mapping;
-var series;
+var socket = io('http://localhost:8081');
+var $strokeSettings = $('.strokeSettings'); // stroke settings controls
+var $fontSize = $('#select-font-size'); // font size select
+var $markerSize = $('#select-marker-size'); // marker size select
+var $fontSettings = $('#select-font-style'); // font style select
+var $labelMethod = $('[data-label-method]'); //  label's method select
+
+var $annotationLabel, chart, series, dataTable, mapping;
 var timer = 0;
 var secondCounter = null;
 
@@ -64,11 +63,9 @@ anychart.onDocumentReady(function() {
 			var colorFill = $('#fill .color-fill-icon').css('background-color');
 			var colorStroke = $('#stroke .color-fill-icon').css('background-color');
 
-			var strokeWidth = 1;
+			var strokeWidth = $strokeSettings.filter('.size').val();
 			var strokeDash;
 			var annotation = chart.annotations().getSelectedAnnotation();
-
-			strokeWidth = $strokeSettings.filter('.size').val();
 
 			switch ($strokeSettings.filter('.dash').val()) {
 				case 'solid':
@@ -102,12 +99,10 @@ anychart.onDocumentReady(function() {
 
 			var type = $target.data().annotationType;
 
-			if (type === 'marker') {
-				var markerType = $target.val();
-			}
 
 			if (type) {
-				if ($target.data().annotationType === 'marker') {
+				if (type === 'marker') {
+					var markerType = $target.val();
 					var markerAnchor = $target.find('option:selected').data()
 						.markerAnchor;
 				}
@@ -156,14 +151,12 @@ anychart.onDocumentReady(function() {
 				chart.annotations().startDrawing(drawingSettings);
 			}
 
-			var annotation = chart.annotations().getSelectedAnnotation();
-
 			updatePropertiesBySelectedAnnotation(strokeWidth, strokeDash);
 
 			if (
 				annotation &&
-				annotation.fill === undefined &&
-				(!annotation.background || annotation.background().fill === undefined)
+				!annotation.fill &&
+				(!annotation.background || !annotation.background().fill)
 			) {
 				$('#fill').attr('disabled', 'disabled');
 			} else {
@@ -186,9 +179,11 @@ anychart.onDocumentReady(function() {
 		switch (type) {
 			case 'removeAllAnnotations':
 				removeAllAnnotation();
+				$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
 				break;
 			case 'removeSelectedAnnotation':
 				removeSelectedAnnotation();
+				$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
 				break;
 			case 'unSelectedAnnotation':
 				chart
@@ -197,20 +192,27 @@ anychart.onDocumentReady(function() {
 					.cancelDrawing();
 				break;
 			case 'saveAnno':
-				var json;
-				json = chart
+				var annotations = {};
+				var json = chart
 					.plot(0)
 					.annotations()
 					.toJson(true);
-				localStorage.setItem('annotationsList0', json);
+				annotations['annotationsList0'] = json;
 				for (var key in appSettingsCache['indicators']) {
 					var plotIndex = appSettingsCache['indicators'][key].plotIndex;
 					json = chart
 						.plot(plotIndex)
 						.annotations()
 						.toJson(true);
-					localStorage.setItem('annotationsList' + plotIndex, json);
+					annotations['annotationsList' + plotIndex] = json;
 				}
+
+				localStorage.setItem('annotations', JSON.stringify(annotations));
+				var indicators = Object.assign(appSettingsCache.indicators);
+				for (key in indicators) {
+					indicators[key].settings = indicators[key].settings.slice(1, indicators.length);
+				}
+				localStorage.setItem('indicators', JSON.stringify(indicators));
 
 				$(evt.currentTarget).addClass('disabled');
 				break;
@@ -236,37 +238,38 @@ anychart.onDocumentReady(function() {
 		}
 	});
 
-	$('#select-font-size').on('change', function() {
-		var annotation = chart.annotations().getSelectedAnnotation();
+});
 
-		if (annotation === null) return;
+$fontSize.on('change', function() {
+	var annotation = chart.annotations().getSelectedAnnotation();
 
-		if (annotation.type === 'label') {
-			annotation.fontSize($(this).val());
-		}
-	});
+	if (annotation === null) return;
 
-	$fontSettings.on('change', function() {
-		var annotation = chart.annotations().getSelectedAnnotation();
+	if (annotation.type === 'label') {
+		annotation.fontSize($(this).val());
+	}
+});
 
-		if (annotation && annotation.type === 'label') {
-			var fontSettings = normalizeFontSettings($(this).val());
+$fontSettings.on('change', function() {
+	var annotation = chart.annotations().getSelectedAnnotation();
 
-			$labelMethod.each(function() {
-				var method = $(this).data().labelMethod;
+	if (annotation && annotation.type === 'label') {
+		var fontSettings = normalizeFontSettings($(this).val());
 
-				annotation[method](fontSettings[method]);
-			});
+		$labelMethod.each(function() {
+			var method = $(this).data().labelMethod;
 
-			$annotationLabel.focus();
-		}
-	});
+			annotation[method](fontSettings[method]);
+		});
 
-	$('html').keyup(function(e) {
-		if (e.keyCode === 93 || e.keyCode === 46) {
-			removeSelectedAnnotation();
-		}
-	});
+		$annotationLabel.focus();
+	}
+});
+
+$('html').keyup(function(e) {
+	if (e.keyCode === 93 || e.keyCode === 46) {
+		removeSelectedAnnotation();
+	}
 });
 
 function createChart(container, updateChart) {
@@ -278,7 +281,7 @@ function createChart(container, updateChart) {
 	var plot = chart.plot();
 	plot.legend(false);
 	chart.title(
-		'EUR.FOREX data started from Jan 2000 and 1 minute ticker\nThe last update was:'
+		'EUR.FOREX data started from Jan 2000 and 1 minute ticker'
 	);
 
 	//create OHLC series
@@ -300,17 +303,13 @@ function createChart(container, updateChart) {
 
 	var rangePicker = anychart.ui.rangePicker();
 
-	//get saved annotations from the 0 plot
-	var ChartStore = localStorage.getItem('annotationsList0');
-	chart
-		.plot()
-		.annotations()
-		.fromJson(ChartStore);
-	// add annotation items in context menu
-	chart.contextMenu().itemsFormatter(contextMenuItemsFormatter);
+	chart.listen('annotationChange', () => {
+		$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
+	});
+
+	chart.listen('annotationSelect', textEditHandler);
 
 	// use annotation events to update application UI elements
-	chart.listen('annotationDrawingFinish', onAnnotationDrawingFinish);
 	chart.listen('annotationSelect', onAnnotationSelect);
 	chart.listen('annotationUnSelect', function() {
 		$('.color-picker[data-color="fill"]').removeAttr('disabled');
@@ -320,36 +319,11 @@ function createChart(container, updateChart) {
 
 	// add textarea for label annotation and listen events
 	chart.listen('annotationDrawingFinish', function(e) {
+		$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
+		textEditHandler(e);
 		if (e.annotation.type === 'label') {
-			$annotationLabel
-				.val(e.annotation.text())
-				.focus()
-				.on('change keyup paste', function(e) {
-					if (e.keyCode === 46) return;
-					try {
-						var annotation = chart.annotations().getSelectedAnnotation();
-						annotation.enabled();
-					} catch (err) {
-						annotation = null;
-					}
-					try {
-						if (annotation) {
-							$(this).val()
-								? annotation.text($(this).val())
-								: annotation.text(' ') && $(this).val(' ');
-						}
-					} catch {
-						return;
-					}
-				});
 
 			chart.listen('annotationDrawingFinish', function(e) {
-				if (e.annotation.type === 'label') {
-					$annotationLabel.val(e.annotation.text()).focus();
-				}
-			});
-
-			chart.listen('annotationSelect', function(e) {
 				if (e.annotation.type === 'label') {
 					$annotationLabel.val(e.annotation.text()).focus();
 				}
@@ -365,11 +339,11 @@ function createChart(container, updateChart) {
 
 	//data loaded event
 	chart.listen('dataChanged', function() {
-		var ChartStore = localStorage.getItem('annotationsList0');
-		chart
-			.plot(0)
-			.annotations()
-			.fromJson(ChartStore);
+		var annotations = JSON.parse(localStorage.getItem('annotations'))
+		for (let key in annotations) {
+			var store = annotations[key];
+			if (store) chart.plot(Object.keys(annotations).indexOf(key)).annotations().fromJson(store);
+		}
 	});
 
 	if (updateChart) {
@@ -380,74 +354,12 @@ function createChart(container, updateChart) {
 			}, 10);
 		}
 
-		//restore data from existing datatable
-		mapping = dataTable.mapAs({
-			open: 'Open',
-			high: 'High',
-			low: 'Low',
-			close: 'Close'
-		});
-
 		//set mapping to both series
 		series.data(mapping);
 
-		var indicatorName;
-		var indicatorPlot;
-		var indicatorSettings = [];
-
 		plot.yScale('linear');
-		for (var keyIndicator in appSettingsCache['indicators']) {
-			indicatorName = keyIndicator;
 
-			if (appSettingsCache['indicators'].hasOwnProperty(keyIndicator)) {
-				indicatorSettings =
-					appSettingsCache['indicators'][keyIndicator]['settings'];
-				indicatorSettings[0] = dataTable.mapAs({
-					value: 1,
-					volume: 1,
-					open: 1,
-					high: 2,
-					low: 3,
-					close: 4
-				});
-			}
-
-			// for slow/fast stochastic
-			if (~indicatorName.toLowerCase().indexOf('stochastic')) {
-				indicatorName = 'stochastic';
-			}
-
-			if (appSettingsCache['indicators'].hasOwnProperty(keyIndicator)) {
-				indicatorPlot = chart.plot(
-					appSettingsCache['indicators'][keyIndicator]['plotIndex']
-				);
-				indicatorPlot[indicatorName].apply(indicatorPlot, indicatorSettings);
-				// adding extra Y axis to the right side
-				indicatorPlot.yAxis(1).orientation('right');
-			}
-		}
-
-		var arr = [];
-		for (var key in appSettingsCache.indicators) {
-			arr.push(key);
-		}
-		$indicatorTypeSelect.val(arr).selectpicker('refresh');
-
-		ChartStore = localStorage.getItem('annotationsList0');
-		if (JSON.parse(ChartStore).annotationsList.length)
-			chart
-				.plot(0)
-				.annotations()
-				.fromJson(ChartStore);
-		for (var key in appSettingsCache['indicators']) {
-			var plotIndex = appSettingsCache['indicators'][key].plotIndex;
-			ChartStore = localStorage.getItem('annotationsList' + plotIndex);
-			if (JSON.parse(ChartStore).annotationsList.length)
-				chart
-					.plot(plotIndex)
-					.annotations()
-					.fromJson(ChartStore);
-		}
+		drawIndicators(appSettingsCache.indicators);
 		return;
 	}
 
@@ -472,8 +384,20 @@ function createChart(container, updateChart) {
 				rangePicker.render(chart);
 			}
 
+			
 			socket.emit('timerStart');
 			timer = 0;
+			//launch timer
+			if (secondCounter == null) {
+				secondCounter = setInterval(function() {
+					timer += 1;
+					chart.title(
+						'EUR.FOREX data started from Jan 2000 and 1 minute ticker\nThe last update was: ' +
+							timer +
+							' seconds ago'
+					);
+				}, 1000);
+			}
 		});
 		socket.on('realTimeData', data => {
 			oneMinuteDataHandler(data);
@@ -484,17 +408,6 @@ function createChart(container, updateChart) {
 		setTimeout(function() {
 			$loader.hide();
 		}, 100);
-		//launch timer
-		if (secondCounter == null) {
-			secondCounter = setInterval(function() {
-				timer += 1;
-				chart.title(
-					'EUR.FOREX data started from Jan 2000 and 1 minute ticker\nThe last update was: ' +
-						timer +
-						' seconds ago'
-				);
-			}, 1000);
-		}
 
 		var $body = $('body');
 		var $textArea = '<textarea id="annotation-label"></textarea>';
@@ -510,10 +423,30 @@ function createChart(container, updateChart) {
 	function historyDataHandler(data) {
 		// the last item in not a valid data point
 		data.pop();
-		//add data to OHLCV chart
+		//add data to OHLC chart
 		dataTable.addData(data);
 		//set mapping to the series
 		series.data(mapping);
+
+		let indicators = JSON.parse(localStorage.getItem('indicators'));
+		if (indicators) {
+			for (let key in indicators) {
+				indicators[key].settings = [mapping, ...indicators[key].settings];
+			}
+	
+			appSettingsCache.indicators = indicators;
+			drawIndicators(appSettingsCache.indicators);
+		}
+
+		//get saved annotations
+		let annotations = JSON.parse(localStorage.getItem('annotations'));
+		for (let key in annotations) {
+			var store = annotations[key];
+			if (store) chart.plot(Object.keys(annotations).indexOf(key)).annotations().fromJson(store);
+		}
+		
+		// add annotation items in context menu
+		chart.contextMenu().itemsFormatter(contextMenuItemsFormatter);
 
 		// create scroller series
 		chart.scroller().area(mapping);
@@ -521,6 +454,7 @@ function createChart(container, updateChart) {
 	}
 
 	function oneMinuteDataHandler(data) {
+		timer = 0;
 		/* due to different data format provided
               by vendor for different subscriptions
                // data needs to be formatted to any default view  */
@@ -536,8 +470,8 @@ function createChart(container, updateChart) {
 		series.data(mapping);
 
 		// create scroller series
+		chart.scroller().removeAllSeries();
 		chart.scroller().area(mapping);
-		timer = 0;
 	}
 }
 
@@ -546,5 +480,68 @@ function removeChart() {
 		chart.dispose();
 		//nulling mappings
 		mapping = null;
+	}
+}
+
+function drawIndicators(indicators) {
+	var indicatorName;
+	var indicatorPlot;
+	var indicatorSettings = [];
+
+	for (var keyIndicator in indicators) {
+		indicatorName = keyIndicator;
+
+		if (indicators.hasOwnProperty(keyIndicator)) {
+			indicatorSettings =
+			indicators[keyIndicator]['settings'];
+		}
+
+		
+		// for slow/fast stochastic
+		if (~indicatorName.toLowerCase().indexOf('stochastic')) {
+			indicatorName = 'stochastic';
+		}
+		
+		if (indicators.hasOwnProperty(keyIndicator)) {
+			indicatorPlot = chart.plot(
+				indicators[keyIndicator]['plotIndex']
+			);
+			indicatorPlot[indicatorName].apply(indicatorPlot, indicatorSettings);
+			// adding extra Y axis to the right side
+			indicatorPlot.yAxis(1).orientation('right');
+		}
+	}
+
+	var arr = [];
+	for (var key in indicators) {
+		arr.push(key);
+	}
+	$indicatorTypeSelect.val(arr).selectpicker('refresh');
+}
+
+function textEditHandler(e) {
+	if (e.annotation.type === 'label') {
+		$annotationLabel
+			.val(e.annotation.text())
+			.focus()
+			.on('change keyup paste', function(e) {
+				if (e.keyCode === 46) return;
+				try {
+					var annotation = chart.annotations().getSelectedAnnotation();
+					annotation.enabled();
+				} catch (err) {
+					annotation = null;
+				}
+				try {
+					if (annotation) {
+						$(this).val()
+							? annotation.text($(this).val())
+							: annotation.text(' ') && $(this).val(' ');
+						$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
+					}
+				} catch (err) {
+					return;
+				}
+			});
 	}
 }

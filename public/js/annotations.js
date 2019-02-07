@@ -1,3 +1,4 @@
+"use strict";
 function removeSelectedAnnotation() {
 	var annotation = chart.annotations().getSelectedAnnotation();
 	if (annotation) chart.annotations().removeAnnotation(annotation);
@@ -9,10 +10,6 @@ function removeAllAnnotation() {
 	localStorage.removeItem('annotationsList');
 }
 
-function onAnnotationDrawingFinish() {
-	$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
-}
-
 function onAnnotationSelect(evt) {
 	var annotation = evt.annotation;
 	var colorFill;
@@ -22,8 +19,6 @@ function onAnnotationSelect(evt) {
 	var markerSize;
 	var fontColor;
 	var fontSize;
-	var STROKE_WIDTH = 1;
-	var $markerSizeBtn = $('.select-marker-size');
 	var $colorPickerFill = $('[data-color="fill"]');
 	var $colorPickerStroke = $('[data-color="stroke"]');
 	var $colorPickerFontColor = $('.color-picker[data-color="fontColor"]');
@@ -100,21 +95,13 @@ function onAnnotationSelect(evt) {
 	if (annotation.type === 'marker') {
 		markerSize = annotation.size();
 
-		if ($('.choose-marker').hasClass('open')) {
-			$markerSize.val($markerSize.val()).selectpicker('refresh');
-			annotation.size($markerSize.val());
-			$markerSizeBtn.removeAttr('disabled');
-		} else {
-			$markerSize
-				.removeAttr('disabled')
-				.val(markerSize)
-				.selectpicker('refresh');
-			annotation.size(markerSize);
-			$markerSizeBtn.removeAttr('disabled');
-		}
-		$markerSizeBtn.removeAttr('disabled');
+		$markerSize
+			.removeAttr('disabled')
+			.val(markerSize)
+			.selectpicker('refresh');
+		annotation.size(markerSize);
 	} else {
-		$markerSizeBtn.attr('disabled', 'disabled');
+		$markerSize.attr('disabled', 'disabled');
 	}
 	if (colorFill) {
 		$colorPickerFill

@@ -1,3 +1,7 @@
+/* global $, chart, selectTools, removeAllAnnotation, removeSelectedAnnotation, contextMenuItemsFormatter, $strokeSettings, $fontSettings, $annotationLabel, setAnnotationStrokeSettings */
+/* exported selectTools, contextMenuItemsFormatter */
+"use strict";
+
 $strokeSettings
 	.filter('.size')
 	.on('changed.bs.select refreshed.bs.select', function(e, i, sel, prev) {
@@ -36,12 +40,12 @@ function createPageColorPicker() {
 	colorPicker.colorpickerembed();
 	colorPicker.on('changeColor', function(e, color) {
 		var annotation = chart.annotations().getSelectedAnnotation();
-		var _annotation = annotation;
+		let annotationBackground = annotation;
 
 		if (annotation) {
 			if (annotation.type === 'label') {
 				$annotationLabel.focus();
-				annotation = annotation.background();
+				annotationBackground = annotation.background();
 			}
 
 			switch (
@@ -51,21 +55,21 @@ function createPageColorPicker() {
 					.data('color')
 			) {
 				case 'fill':
-                    annotation.fill(color, 0.3);
+                    annotationBackground.fill(color, annotation.type === 'label' ? 1 : 0.3);
                     $('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
 					break;
 				case 'stroke':
-					strokeWidth = annotation.stroke().thickness || STROKE_WIDTH;
-					var strokeDash = annotation.stroke().dash || '';
+					strokeWidth = annotationBackground.stroke().thickness || STROKE_WIDTH;
+					var strokeDash = annotationBackground.stroke().dash || '';
 					var settings = {
 						thickness: strokeWidth,
 						color: color,
 						dash: strokeDash
 					};
-					setAnnotationStrokeSettings(annotation, settings);
+					setAnnotationStrokeSettings(annotationBackground, settings);
 					break;
 				case 'fontColor':
-					if (_annotation.type === 'label') _annotation.fontColor(color);
+					if (annotation.type === 'label') annotation.fontColor(color);
 					break;
 			}
 		}

@@ -1,9 +1,9 @@
-var express = require('express');
-var app = express();
-var path = require('path');
+const express = require('express');
+const app = express();
+const path = require('path');
 const http = require('http').Server(app);
-var io = require('socket.io')(http);
-var fetch = require('node-fetch');
+const io = require('socket.io')(http);
+const fetch = require('node-fetch');
 const papa = require('papaparse');
 
 function eodHistoricalRequest(socket) {
@@ -14,7 +14,8 @@ function eodHistoricalRequest(socket) {
     })
     .then(data => {
       socket.emit('loadData', data);
-    });
+    })
+    .catch(err => console.log(err));
 }
 
 function eodRealTimeRequest(socket) {
@@ -22,7 +23,8 @@ function eodRealTimeRequest(socket) {
     .then(res => res.json())
     .then(data => {
       socket.emit('realTimeData', data);
-    });
+    })
+    .catch(err => console.log(err));
 }
 
 app.use(express.static(path.join(__dirname + '/public')));
@@ -33,7 +35,7 @@ app.get('/', function(req, res) { //on html request of root directory, run callb
 });
 
 
-io.on('connection', function(socket){
+io.on('connection', function(socket) {
   console.log('a user connected');
   eodHistoricalRequest(socket);
   socket.on('timerStart', () => {

@@ -1,18 +1,23 @@
+/* global $, chart, app, mapping, dataTable, setColClass, drawIndicators */
+/* exported theme, indicatorList */
+"use strict";
+
 var $seriesTypeSelect = $('#seriesTypeSelect');
 var $indicatorTypeSelect = $('#indicatorTypeSelect');
 var $indicatorSettingsModal = $('#indicatorSettingsModal');
 var $resetBtn = $('#resetButton');
-var $addIndicatorBtn = $('#addIndicatorButton');
+var $addIndicatorBtn = $('#addIndicatorButton'); 
 var $indicatorNavPanel = $('#indicatorNavPanel');
 var $indicatorForm = $('#indicatorForm');
 var $loader = $('#loader');
 var $themeSelect = $('#themeSelect');
 
 var appSettingsCache = {};
-appSettingsCache['data'] = {};
-appSettingsCache['chartType'] = $seriesTypeSelect.val();
-appSettingsCache['indicators'] = {};
+appSettingsCache.data = {};
+appSettingsCache.chartType = $seriesTypeSelect.val();
+appSettingsCache.indicators = {};
 
+// chart container id
 var chartContainer = 'chart-container';
 
 var indicatorsSettings = {
@@ -36,10 +41,11 @@ var indicatorsSettings = {
 	]
 };
 
-var indicatorlist = [];
-//default theme after launch
+
+// get default theme after launch
 var theme = $themeSelect.val();
 
+// html markup for the indicator settings input
 var inputHtml =
 	'<div class="col-sm-4">' +
 	'<div class="form-group" id="indicatorFormGroup">' +
@@ -48,11 +54,12 @@ var inputHtml =
 	'</div>' +
 	'</div>';
 
+// html markup for the indicator settings input
 var selectHtml =
 	'<div class="col-sm-4">' +
 	'<div class="form-group" id="indicatorFormGroup">' +
 	'<label for="" class="control-label"></label>' +
-	'<select class="form-control form-control-sm select show-tick" data-style="btn-sm" id=""></select>' +
+	'<select class="form-control form-control-sm select show-tick" data-style="btn-light btn-sm" id=""></select>' +
 	'</div>' +
 	'</div>';
 
@@ -169,27 +176,13 @@ fetch('indicators.xml')
 $themeSelect.on('change', function() {
 	theme = $(this).val();
 
-	var json = chart
-		.plot(0)
-		.annotations()
-		.toJson(true);
-	localStorage.setItem('annotationsList0', json);
-	for (var key in appSettingsCache['indicators']) {
-		var plotIndex = appSettingsCache['indicators'][key].plotIndex;
-		json = chart
-			.plot(plotIndex)
-			.annotations()
-			.toJson(true);
-		localStorage.setItem('annotationsList' + plotIndex, json);
-	}
-
 	$('.btn[data-action-type = "saveAnno"]').addClass('disabled');
 
 	var currentRange = {
 		min: chart.xScale().getMinimum(),
 		max: chart.xScale().getMaximum()
 	};
-	json = JSON.stringify(currentRange);
+	let json = JSON.stringify(currentRange);
 	localStorage.setItem('currentRange', json);
 
 	chart
@@ -207,25 +200,10 @@ $themeSelect.on('change', function() {
 	// init, create chart
 	app.createChart(chartContainer, true);
 
-	mapping = dataTable.mapAs({
-		open: 'Open',
-		high: 'High',
-		low: 'Low',
-		close: 'Close',
-		value: 'Close',
-		volume: 'Close'
-	});
-	for (var key in appSettingsCache['indicators']) {
-		var indicatorName = key;
-		var settings = [mapping];
-		var plot = chart.plot(appSettingsCache['indicators'][key].plotIndex);
-		plot[indicatorName].apply(plot, settings);
-		// adding extra Y axis to the right side
-		plot.yAxis(1).orientation('right');
-	}
-
+	
 	// create scroller series
 	chart.scroller().area(mapping);
+	drawIndicators(appSettingsCache.indicators);
 });
 
 // event to show modal indicator settings
@@ -306,8 +284,8 @@ $indicatorTypeSelect.on('change', function() {
 });
 
 // remove selected class, if indicator not selected
-$indicatorSettingsModal.find('button').on('click', function(e) {
-	if ($(e.currentTarget).data('dismiss')) {
+function indicatorDismissHandler(e) {
+	if ($(e.currentTarget).data('dismiss') || e.type === 'hide') {
 		var lastAddedIndicator;
 
 		for (var i = 0; i < $indicatorTypeSelect.val().length; i++) {
@@ -330,7 +308,9 @@ $indicatorSettingsModal.find('button').on('click', function(e) {
 		$indicatorTypeSelect.val(selectValues);
 		$indicatorTypeSelect.selectpicker('render');
 	}
-});
+}
+
+$indicatorSettingsModal.find('button').on('click', indicatorDismissHandler);
 
 // init selectpicker to all select in indicator settings modal
 $indicatorSettingsModal.on('show.bs.modal', function() {
@@ -339,6 +319,7 @@ $indicatorSettingsModal.on('show.bs.modal', function() {
 
 // reset all settings
 $resetBtn.on('click', function(e) {
+	debugger;
 	e.preventDefault();
 
 	//set default theme
@@ -349,6 +330,9 @@ $resetBtn.on('click', function(e) {
 	// reset saved settings
 	appSettingsCache['indicators'] = {};
 	appSettingsCache['chartType'] = 'line';
+	// for (var key in localStorage) {
+	// 	localStorage.removeItem(key);
+	// }
 
 	// select series type
 	$seriesTypeSelect.val('candlestick').selectpicker('refresh');
@@ -356,8 +340,6 @@ $resetBtn.on('click', function(e) {
 	$indicatorTypeSelect.val('').selectpicker('refresh');
 	// init, create chart
 	app.createChart(chartContainer, true);
-	//dismiss existing indicators
-	indicatorlist = [];
 });
 
 // event to add indicator
@@ -401,9 +383,7 @@ $addIndicatorBtn.on('click', function() {
 	plot.yAxis(1).orientation('right');
 	// hide indicator settings modal
 	$indicatorSettingsModal.modal('hide');
-
-	//save indicator
-	indicatorlist.push(appSettingsCache['indicators'][indicatorsSettings.name]);
+	$('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
 });
 
 function getInputLabelText(keyText) {
