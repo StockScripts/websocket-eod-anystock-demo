@@ -1,4 +1,4 @@
-/* global $, chart, selectTools, removeAllAnnotation, removeSelectedAnnotation, contextMenuItemsFormatter, $strokeSettings, $fontSettings, $annotationLabel, setAnnotationStrokeSettings, updateAnnotationsState */
+/* global $, chart, selectTools, removeAllAnnotation, removeSelectedAnnotation, $strokeSettings, $fontSettings, $annotationLabel, setAnnotationStrokeSettings, updateAnnotationsState */
 /* exported selectTools, contextMenuItemsFormatter */
 "use strict";
 

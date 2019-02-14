@@ -69,8 +69,8 @@ function changeAnnotations() {
 			color: annotationsColor
 		};
 
+		// get annotation drawing settings
 		if (type) {
-
 			if (type === 'marker') {
 				drawingSettings.size = markerSize;
 				drawingSettings.markerType = $target.val();
@@ -99,7 +99,6 @@ function changeAnnotations() {
 						stroke: strokeSettings
 					}
 				};
-				updateAnnotationsState();
 			} else {
 				drawingSettings.fill = {};
 				drawingSettings.fill.color = colorFill;

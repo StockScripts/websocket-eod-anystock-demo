@@ -68,13 +68,9 @@ if (window.location.protocol === 'file:') {
 
 // get indicators from file indicators.xml
 fetch('indicators.xml')
-	.then(function(res) {
-		return res.text();
-	})
-	.then(function(str) {
-		return new window.DOMParser().parseFromString(str, 'text/xml');
-	})
-	.then(function(data) {
+	.then(res => res.text())
+	.then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
+	.then(data => {
 		$(data)
 			.find('indicator')
 			.each(function(index, item) {
@@ -311,11 +307,6 @@ $addIndicatorBtn.on('click', function() {
 	const indicator = indicatorsSettings.defaultSettings[name];
 	const settings = [mapping];
 
-	// for slow/fast stochastic
-	if (~name.toLowerCase().indexOf('stochastic')) {
-		name = 'stochastic';
-	}
-
 	for (let key in indicator) {
 		if (key !== 'overview' && key !== 'plotIndex') {
 			let val = $('#' + key).val();
@@ -325,7 +316,12 @@ $addIndicatorBtn.on('click', function() {
 	}
 	
 	const plot = chart.plot(plotIndex);
-	plot[name].apply(plot, settings);
+	// for slow/fast stochastic
+	if (~name.toLowerCase().indexOf('stochastic')) {
+		plot['stochastic'].apply(plot, settings);
+	} else {
+		plot[name].apply(plot, settings);
+	}
 	// adding extra Y axis to the right side
 	plot.yAxis(1).orientation('right');
 	// hide indicator settings modal

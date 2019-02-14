@@ -56,10 +56,12 @@ anychart.onDocumentReady(function () {
 			}, 1000);
 		}
 	});
+
 	socket.on('realTimeData', data => {
 		oneMinuteDataHandler(data);
 	});
 
+	// init series type select & theme select with data from application state
 	$seriesTypeSelect.val(app.state.settings.chartType).selectpicker('refresh');
 	$themeSelect.val(app.state.settings.theme || 'darkEarth').selectpicker('refresh');
 });
@@ -87,10 +89,10 @@ function createChart(container, updateChart) {
 	const plot = chart.plot();
 	plot.legend(false);
 	chart.title(
-		'EUR.FOREX data started from Jan 2000 and 1 minute ticker'
+		'EUR.FOREX data started from Jan 2000 and 1 minute ticker\n'
 	);
 
-	//create OHLC series
+	//create chart series with selected series
 	series = plot[app.state.settings.chartType || 'candlestick']();
 
 	// set series name
@@ -138,25 +140,10 @@ function createChart(container, updateChart) {
 	//data loaded event
 	chart.listen('dataChanged', function () {
 		for (let key in app.state.annotations) {
-			var store = app.state.annotations[key];
-			if (store) chart.plot(Object.keys(app.state.annotations).indexOf(key)).annotations().fromJson(store);
+			const annotation = app.state.annotations[key];
+			if (annotation) chart.plot(Object.keys(app.state.annotations).indexOf(key)).annotations().fromJson(annotation);
 		}
 	});
-
-	if (updateChart) {
-		if (app.state.settings.currentRange) {
-			setTimeout(function () {
-				chart.selectRange(app.state.settings.currentRange.min, app.state.settings.currentRange.max, true);
-			}, 10);
-		}
-
-		//set mapping to both series
-		series.data(mapping);
-		// create scroller series
-		chart.scroller().area(mapping);
-		drawIndicators(app.state.indicators);
-		return;
-	}
 
 	chart.listen('chartDraw', function () {
 		const $body = $('body');
@@ -169,12 +156,39 @@ function createChart(container, updateChart) {
 			$annotationLabel = $('#annotation-label');
 		}
 	});
+
+	chart.listen('selectedRangeChangeFinish', function() {
+		app.state.settings.currentRange = {
+			min: chart.xScale().getMinimum(),
+			max: chart.xScale().getMaximum()
+		};
+		$('.btn[data-action-type="saveAppState"]').removeClass('disabled');
+	});
+
+	if (updateChart) {
+		setRange(app.state.settings.currentRange);
+
+		//set mapping to both series
+		series.data(mapping);
+		// create scroller series
+		chart.scroller().area(mapping);
+		drawIndicators(app.state.indicators);
+		return;
+	}
 }
 
 // remove chart
 function removeChart() {
 	if (chart) {
 		chart.dispose();
+	}
+}
+
+function setRange(range) {
+	if (range) {
+		setTimeout(function () {
+			chart.selectRange(range.min, range.max, true);
+		}, 10);
 	}
 }
 
@@ -185,16 +199,16 @@ function drawIndicators(indicators) {
 	for (let key in indicators) {
 		indicatorName = key;
 
-		// for slow/fast stochastic
-		if (~indicatorName.toLowerCase().indexOf('stochastic')) {
-			indicatorName = 'stochastic';
-		}
-
 		if (indicators.hasOwnProperty(key)) {
 			indicatorPlot = chart.plot(
 				indicators[key].plotIndex
 			);
-			indicatorPlot[indicatorName].apply(indicatorPlot, [mapping, ...indicators[key].settings]);
+			// for slow/fast stochastic
+			if (~indicatorName.toLowerCase().indexOf('stochastic')) {
+				indicatorPlot['stochastic'].apply(indicatorPlot, [mapping, ...indicators[key].settings]);
+			} else {
+				indicatorPlot[indicatorName].apply(indicatorPlot, [mapping, ...indicators[key].settings]);
+			}
 			// adding extra Y axis to the right side
 			indicatorPlot.yAxis(1).orientation('right');
 		}
@@ -260,6 +274,8 @@ function historyDataHandler(data) {
 
 	// create scroller series
 	chart.scroller().area(mapping);
+
+	setRange(app.state.settings.currentRange);
 
 }
 
