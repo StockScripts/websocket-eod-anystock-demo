@@ -1,4 +1,4 @@
-/* global $, chart, selectTools, removeAllAnnotation, removeSelectedAnnotation, contextMenuItemsFormatter, $strokeSettings, $fontSettings, $annotationLabel, setAnnotationStrokeSettings */
+/* global $, chart, selectTools, removeAllAnnotation, removeSelectedAnnotation, contextMenuItemsFormatter, $strokeSettings, $fontSettings, $annotationLabel, setAnnotationStrokeSettings, updateAnnotationsState */
 /* exported selectTools, contextMenuItemsFormatter */
 "use strict";
 
@@ -56,7 +56,7 @@ function createPageColorPicker() {
 			) {
 				case 'fill':
                     annotationBackground.fill(color, annotation.type === 'label' ? 1 : 0.3);
-                    $('.btn[data-action-type = "saveAnno"]').removeClass('disabled');
+					updateAnnotationsState();
 					break;
 				case 'stroke':
 					strokeWidth = annotationBackground.stroke().thickness || STROKE_WIDTH;
@@ -70,6 +70,7 @@ function createPageColorPicker() {
 					break;
 				case 'fontColor':
 					if (annotation.type === 'label') annotation.fontColor(color);
+					updateAnnotationsState();
 					break;
 			}
 		}

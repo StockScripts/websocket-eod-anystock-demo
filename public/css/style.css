@@ -224,13 +224,13 @@ select.selectpicker.input-group-prepend + .dropdown-toggle {
     line-height: 14px;
     max-width: 0;
     height: 0;
-    transition: all .5s;
+    transition: all .5s ease-out;
 }
 
 .btn-group.auto-width button:hover span {
     max-width: 100px;
     height: auto;
-    transition: all .5s;
+    transition: all .6s ease-out;
 }
 
 .select .ac {
@@ -337,7 +337,7 @@ button.dropdown-toggle {
     width: 100%;
     height: 100%;
     z-index: 1000;
-    background: #fff5;
+    background: #272B30;
 }
 
 .anychart-loader .rotating-cover {

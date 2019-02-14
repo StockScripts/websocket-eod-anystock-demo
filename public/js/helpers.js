@@ -1,3 +1,6 @@
+/* global $ */
+/* exported setColClass */
+
 function setColClass($el) {
 	// column count for row
 	var ROW_COUNT = 12;

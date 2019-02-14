@@ -9,9 +9,7 @@ const papa = require('papaparse');
 function eodHistoricalRequest(socket) {
   fetch('https://eodhistoricaldata.com/api/eod/EUR.FOREX?api_token=OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX&period=d')
     .then(res => res.text())
-    .then(csv => {
-      return papa.parse(csv, {header: true}).data;
-    })
+    .then(csv => papa.parse(csv, {header: true}).data)
     .then(data => {
       socket.emit('loadData', data);
     })
@@ -21,9 +19,7 @@ function eodHistoricalRequest(socket) {
 function eodRealTimeRequest(socket) {
   fetch('https://eodhistoricaldata.com/api/real-time/EUR.FOREX?api_token=anychart-5b084a5bd99e75.54278180&fmt=json')
     .then(res => res.json())
-    .then(data => {
-      socket.emit('realTimeData', data);
-    })
+    .then(data => socket.emit('realTimeData', data))
     .catch(err => console.log(err));
 }
 

@@ -47,67 +47,70 @@
                 <div id="empty" class="tab-pane active"></div>
                 <div id="indicator-panel" role="tabpanel" class="tab-pane">
                     <div id="indicatorNavPanel" class="container-fluid">
-                        <div class="row">
+                        <div class="row flex-nowrap justify-content-between">
                             <div class="col-auto">
-                                <div class="input-group input-group-sm flex-nowrap">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Series Type:</span>
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <div class="input-group input-group-sm flex-nowrap">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Series Type:</span>
+                                            </div>
+                                            <select title="Series Type" id="seriesTypeSelect" class="select selectpicker show-tick input-group-append" data-tooltip-title="Select chart series type" data-focus-off="true">
+                                                <!--series constructors-->
+                                                <option value="candlestick" selected>Candlestick Chart</option>
+                                                <option value="ohlc">OHLC Chart</option>
+                                                <option value="rangeArea">Range Area Chart</option>
+                                                <option value="rangeColumn">Range Column Chart</option>
+                                                <option value="rangeSplineArea">Range Spline Area Chart</option>
+                                                <option value="rangeStepArea">Range Step Area Chart</option>
+                                                <!---->
+                                            </select>
+                                        </div>
                                     </div>
-                                    <select title="Series Type" id="seriesTypeSelect" class="select selectpicker show-tick input-group-append"
-                                        data-tooltip-title="Select chart series type">
-                                        <!--series constructors-->
-                                        <option value="candlestick" selected>Candlestick Chart</option>
-                                        <option value="ohlc">OHLC Chart</option>
-                                        <option value="rangeArea">Range Area Chart</option>
-                                        <option value="rangeColumn">Range Column Chart</option>
-                                        <option value="rangeSplineArea">Range Spline Area Chart</option>
-                                        <option value="rangeStepArea">Range Step Area Chart</option>
-                                        <!---->
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="input-group input-group-sm flex-nowrap">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Technical Indicators:</span>
+                                    <div class="col-auto">
+                                        <div class="input-group input-group-sm flex-nowrap">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Technical Indicators:</span>
+                                            </div>
+                                            <select class="select selectpicker show-tick input-group-append" multiple data-width="250"
+                                                id="indicatorTypeSelect" title="Add Indicators" data-tooltip-title="Add indicators" data-focus-off="true">
+                                            </select>
+                                        </div>
                                     </div>
-                                    <select class="select selectpicker show-tick input-group-append" multiple data-width="250"
-                                        id="indicatorTypeSelect" title="Add Indicators" data-tooltip-title="Add indicators">
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="input-group input-group-sm flex-nowrap">
-                                    <div class="input-group-prepend"><span class="input-group-text">Chart Theme:</span></div>
-                                    <select data-tooltip-title="Select chart theme" id="themeSelect" class="select selectpicker show-tick input-group-append" data-width="auto">
-                                        <option value="coffee">Coffee</option>
-                                        <option value="default">Default</option>
-                                        <option value="darkBlue">Dark Blue</option>
-                                        <option value="lightBlue">Light Blue</option>
-                                        <option value="darkEarth" selected>Dark Earth</option>
-                                        <option value="lightEarth">Light Earth</option>
-                                        <option value="darkGlamour">Dark Glamour</option>
-                                        <option value="darkTurquoise">Dark Turquoise</option>
-                                        <option value="lightGlamour">Light Glamour</option>
-                                        <option value="darkProvence">Dark Provence</option>
-                                        <option value="lightProvence">Light Provence</option>
-                                        <option value="lightTurquoise">Light Turquoise</option>
-                                        <option value="monochrome">Monochrome</option>
-                                        <option value="morning">Morning</option>
-                                        <option value="pastel">Pastel</option>
-                                        <option value="sea">Sea</option>
-                                        <option value="wines">Wines</option>
-                                    </select>
+                                    <div class="col-auto">
+                                        <div class="input-group input-group-sm flex-nowrap">
+                                            <div class="input-group-prepend"><span class="input-group-text">Chart Theme:</span></div>
+                                            <select data-tooltip-title="Select chart theme" id="themeSelect" class="select selectpicker show-tick input-group-append" data-width="auto" data-focus-off="true">
+                                                <option value="coffee">Coffee</option>
+                                                <option value="default">Default</option>
+                                                <option value="darkBlue">Dark Blue</option>
+                                                <option value="lightBlue">Light Blue</option>
+                                                <option value="darkEarth" selected>Dark Earth</option>
+                                                <option value="lightEarth">Light Earth</option>
+                                                <option value="darkGlamour">Dark Glamour</option>
+                                                <option value="darkTurquoise">Dark Turquoise</option>
+                                                <option value="lightGlamour">Light Glamour</option>
+                                                <option value="darkProvence">Dark Provence</option>
+                                                <option value="lightProvence">Light Provence</option>
+                                                <option value="lightTurquoise">Light Turquoise</option>
+                                                <option value="monochrome">Monochrome</option>
+                                                <option value="morning">Morning</option>
+                                                <option value="pastel">Pastel</option>
+                                                <option value="sea">Sea</option>
+                                                <option value="wines">Wines</option>
+                                            </select>
+                                        </div>
+                                    </div>  
                                 </div>
                             </div>
                             <div class="col-auto">
                                 <div class="btn-group auto-width">
-                                    <button data-action-type="saveAnno" type="button" class="btn btn-sm btn-secondary border-0 disabled"
+                                    <button data-action-type="saveAppState" type="button" class="btn btn-sm btn-secondary border-0 disabled"
                                         aria-label="Center Align" data-toggle="tooltip" data-title="Save chart settings and indicators">
                                         <i class="ac ac-save" aria-hidden="true"></i>
-                                        <span>&nbsp;Save all</span>
+                                        <span>&nbsp;Save</span>
                                     </button>
-                                    <button class="btn btn-secondary border-0 btn-sm" id="resetButton" data-toggle="tooltip" data-title="Reset chart settings and remove indicators">
+                                    <button class="btn btn-secondary border-0 btn-sm resetButton" data-toggle="tooltip" data-title="Reset chart settings and remove indicators">
                                         <i class="ac ac-refresh" aria-hidden="true"></i>
                                         <span>&nbsp;Reset Settings</span>
                                     </button>
@@ -121,16 +124,6 @@
                         <div class="row flex-nowrap justify-content-between">
                             <div class="col-auto">
                                 <div class="row">
-                                    <div class="col-auto">
-                                        <button data-action-type="unSelectedAnnotation" class="btn btn-sm btn-secondary border-0"
-                                            aria-controls="empty" role="tab" data-toggle="tab" data-title="Cursor">
-                                            &nbsp;<i class="ac ac-mouse-pointer" aria-hidden="true"></i>&nbsp;
-                                        </button>
-                                        <button data-action-type="saveAnno" type="button" class="btn btn-sm btn-secondary border-0 disabled"
-                                            aria-label="Center Align" data-toggle="tooltip" data-title="Save annotations">
-                                            <i class="ac ac-save" aria-hidden="true"></i>
-                                        </button>
-                                    </div>
                                     <div class="col-auto">
                                         <div id="drawing" class="tools input-group input-group-sm flex-nowrap">
                                             <div class="input-group-prepend">
@@ -420,14 +413,25 @@
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <div class="clear-controls">
+                                <div class="btn-group auto-width">
+                                    <button data-action-type="saveAppState" type="button" class="btn btn-sm btn-secondary border-0 disabled"
+                                        aria-label="Center Align" data-toggle="tooltip" data-title="Save chart settings and indicators">
+                                        <i class="ac ac-save" aria-hidden="true"></i>
+                                        <span>&nbsp;Save</span>
+                                    </button>
                                     <button data-action-type="removeSelectedAnnotation" type="button" class="btn btn-sm btn-secondary border-0 disabled"
                                         aria-label="Center Align" data-toggle="tooltip" data-title="Delete selected drawing / Cmd+Backspace / DEL">
                                         <i class="ac ac-remove-thin" aria-hidden="true"></i>
+                                        <span>&nbsp;Delete</span>
                                     </button>
                                     <button data-action-type="removeAllAnnotations" type="button" class="btn btn-sm btn-secondary border-0"
                                         aria-label="Center Align" data-toggle="tooltip" data-title="Delete all drawings">
                                         <i class="ac ac-clear" aria-hidden="true"></i>
+                                        <span>&nbsp;Clear</span>
+                                    </button>
+                                    <button class="btn btn-secondary border-0 btn-sm resetButton" data-toggle="tooltip" data-title="Reset chart settings and remove indicators">
+                                        <i class="ac ac-refresh" aria-hidden="true"></i>
+                                        <span>&nbsp;Reset</span>
                                     </button>
                                 </div>
                             </div>
@@ -443,6 +447,12 @@
 
         <div class="toolbar" id="drawingToolsPanel" role="tablist">
             <ul class="nav nav-pills flex-column">
+                <li role="presentation">
+                    <a class="btn btn-sm btn-secondary btn-block border-0" href="#empty"
+                        aria-controls="empty" role="tab" data-toggle="tab" data-title="Cursor" data-action-type="unSelectedAnnotation">
+                        &nbsp;<i class="ac ac-mouse-pointer" aria-hidden="true"></i>&nbsp;
+                    </a>
+                </li>
                 <li role="presentation">
                     <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel"
                         role="tab" data-toggle="tab" data-toolbar-type="drawing" data-title="Drawing tools" data-action-type="unSelectedAnnotation">
@@ -588,6 +598,7 @@
     <script src="js/annotations.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/settingsToolbar.js"></script>
+    <script src="js/listeners.js"></script>
 </body>
 
 </html>

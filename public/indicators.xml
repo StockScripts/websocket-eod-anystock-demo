@@ -49,7 +49,6 @@
             <item name='period' value='20' type='number'/>
             <item name='upSeriesType' value='line' type='string'/>
             <item name='downSeriesType' value='line' type='string'/>
-            <item name='plotIndex' value='1' type='number'/>
         </defaults>
     </indicator>
     <indicator type='atr'>
@@ -73,7 +72,6 @@
         <defaults>
             <item name='period' value='14' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='2' type='number'/>
         </defaults>
     </indicator>
     <indicator type='ao'>
@@ -92,7 +90,6 @@
             <item name='slowPeriod' value='34' type='number'/>
             <item name='maType' value='["sma", "ema"]' type='array'/>
             <item name='seriesType' value='stick' type='string'/>
-            <item name='plotIndex' value='3' type='number'/>
         </defaults>
     </indicator>
     <indicator type='bbands'>
@@ -154,7 +151,6 @@
             <item name='period' value='20' type='number'/>
             <item name='deviation' value='2' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='4' type='number'/>
         </defaults>
     </indicator>
     <indicator type='bbandsWidth'>
@@ -176,7 +172,6 @@
             <item name='period' value='20' type='number'/>
             <item name='deviation' value='2' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='5' type='number'/>
         </defaults>
     </indicator>
     <indicator type='ema'>
@@ -258,7 +253,6 @@
             <item name='dmaType' value='["sma", "ema"]' type='array'/>
             <item name='kSeriesType' value='line' type='string'/>
             <item name='dSeriesType' value='line' type='string'/>
-            <item name='plotIndex' value='7' type='number'/>
         </defaults>
     </indicator>
     <indicator type='fastStochastic'>
@@ -293,7 +287,6 @@
             <item name='dmaType' value='["sma", "ema"]' type='array'/>
             <item name='kSeriesType' value='line' type='string'/>
             <item name='dSeriesType' value='line' type='string'/>
-            <item name='plotIndex' value='8' type='number'/>
         </defaults>
     </indicator>
     <indicator type='slowStochastic'>
@@ -329,7 +322,6 @@
             <item name='dmaType' value='["sma", "ema"]' type='array'/>
             <item name='kSeriesType' value='line' type='string'/>
             <item name='dSeriesType' value='line' type='string'/>
-            <item name='plotIndex' value='9' type='number'/>
         </defaults>
     </indicator>
     <indicator type='kdj'>
@@ -375,7 +367,6 @@
             <item name='kSeriesType' value='line' type='string'/>
             <item name='dSeriesType' value='line' type='string'/>
             <item name='jSeriesType' value='line' type='string'/>
-            <item name='plotIndex' value='10' type='number'/>
         </defaults>
     </indicator>
     <indicator type='keltnerChannels'>
@@ -451,7 +442,6 @@
             <item name='macdSeriesType' value='line' type='string'/>
             <item name='signalSeriesType' value='line' type='string'/>
             <item name='histogramSeriesType' value='column' type='string'/>
-            <item name='plotIndex' value='11' type='number'/>
         </defaults>
     </indicator>
     <indicator type='obv'>
@@ -467,7 +457,6 @@
         </description>
         <defaults>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='12' type='number'/>
         </defaults>
     </indicator>
     <indicator type='momentum'>
@@ -486,7 +475,6 @@
         <defaults>
             <item name='period' value='14' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='13' type='number'/>
         </defaults>
     </indicator>
     <indicator type='priceChannels'>
@@ -523,7 +511,6 @@
             <item name='accelerationFactorincrement' value='0.02' type='number'/>
             <item name='accelerationFactorMaximum' value='0.02' type='number'/>
             <item name='seriesType' value='marker' type='string'/>
-            <item name='plotIndex' value='14' type='number'/>
         </defaults>
     </indicator>
     <indicator type='roc'>
@@ -550,7 +537,6 @@
         <defaults>
             <item name='period' value='20' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='15' type='number'/>
         </defaults>
     </indicator>
     <indicator type='rsi'>
@@ -575,7 +561,6 @@
         <defaults>
             <item name='period' value='14' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='16' type='number'/>
         </defaults>
     </indicator>
     <indicator type='sma'>
@@ -618,7 +603,6 @@
         </description>
         <defaults>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='17' type='number'/>
         </defaults>
     </indicator>
     <indicator type='cci'>
@@ -635,7 +619,6 @@
         <defaults>
             <item name='period' value='20' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='18' type='number'/>
         </defaults>
     </indicator>
     <indicator type='cmf'>
@@ -652,7 +635,6 @@
         <defaults>
             <item name='period' value='20' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='19' type='number'/>
         </defaults>
     </indicator>
     <indicator type='mfi'>
@@ -669,7 +651,6 @@
         <defaults>
             <item name='period' value='10' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='20' type='number'/>
         </defaults>
     </indicator>
     <indicator type='dmi'>
@@ -690,7 +671,6 @@
             <item name='pdiSeries' value='line' type='string'/>
             <item name='ndiSeries' value='line' type='string'/>
             <item name='adxSeries' value='line' type='string'/>
-            <item name='plotIndex' value='21' type='number'/>
         </defaults>
     </indicator>
     <indicator type='cho'>
@@ -709,7 +689,6 @@
             <item name='slowPeriod' value='10' type='number'/>
             <item name='smoothingType' value='["sma", "ema"]' type='array'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='22' type='number'/>
         </defaults>
     </indicator>
     <indicator type='trix'>
@@ -730,7 +709,6 @@
             <item name='signalMaType' value='["ema", "sma"]' type='array'/>
             <item name='trixSeriesType' value='line' type='string'/>
             <item name='signalSeriesType' value='line' type='string'/>
-            <item name='plotIndex' value='23' type='number'/>
         </defaults>
     </indicator>
     <indicator type='williamsR'>
@@ -747,7 +725,6 @@
         <defaults>
             <item name='period' value='10' type='number'/>
             <item name='seriesType' value='line' type='string'/>
-            <item name='plotIndex' value='24' type='number'/>
         </defaults>
     </indicator>
     <indicator type='volumeMa'>
@@ -766,7 +743,6 @@
             <item name='maType' value='["sma", "ema"]' type='array'/>
             <item name='volumeSeriesType' value='stick' type='string'/>
             <item name='maSeriesType' value='line' type='string'/>
-            <item name='plotIndex' value='25' type='number'/>
         </defaults>
     </indicator>
 </indicators>

@@ -33,7 +33,7 @@ npm install
 
 Run the nodejs server which establishes a secure WebSocket connection to the data vendor EOD and forwards received data to the client side:
 ```bash
-node server.js
+npm start
 ```
 
 Open browser at `http://localhost:8081/`.
