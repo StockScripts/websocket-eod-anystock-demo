@@ -1,35 +1,19 @@
-/* global $ */
-/* exported setColClass */
+/* exported el */
+function el(tagName, attributes, childrens) {
+	var element = document.createElement(tagName);
 
-function setColClass($el) {
-	// column count for row
-	var ROW_COUNT = 12;
-	var COLUMN_COUNT = 3;
-	var index = $el.find('.col-sm-4').length;
-	var lastIndex = $el
-		.find('.col-sm-4')
-		.last()
-		.index();
-	var colClass;
-
-	if (index === COLUMN_COUNT) {
-		return;
+	if (typeof attributes === 'object') {
+		Object.keys(attributes).forEach(function (i) {
+			element.setAttribute(i, attributes[i]);
+		});
 	}
-
-	if (index > COLUMN_COUNT) {
-		while (index > COLUMN_COUNT) {
-			index -= COLUMN_COUNT;
-		}
+	if (typeof childrens === 'string') {
+		element.textContent = childrens;
+	} else if (childrens instanceof Array) {
+		childrens.forEach(function (child) {
+			element
+				.appendChild(child);
+		});
 	}
-
-	colClass = ROW_COUNT / index;
-
-	while (index) {
-		--index;
-		$el
-			.find($("[class*='col-sm-']"))
-			.eq(lastIndex - index)
-			.removeClass('col-sm-4')
-			.addClass('col-sm-' + colClass);
-	}
+	return element;
 }

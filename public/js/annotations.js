@@ -7,6 +7,7 @@ let annotationsColor;
 
 function updateAnnotationsState() {
 	for (let i=0; i < chart.getPlotsCount(); i++) {
+		if (!chart.plot(i).getSeriesCount()) i++;
 		let json = chart
 			.plot(i)
 			.annotations()

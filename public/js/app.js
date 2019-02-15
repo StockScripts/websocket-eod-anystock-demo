@@ -42,7 +42,7 @@ anychart.onDocumentReady(function () {
 		}
 
 
-		socket.emit('timerStart');
+		// socket.emit('timerStart');
 		timer = 0;
 		//launch timer
 		if (secondCounter == null) {
@@ -141,7 +141,10 @@ function createChart(container, updateChart) {
 	chart.listen('dataChanged', function () {
 		for (let key in app.state.annotations) {
 			const annotation = app.state.annotations[key];
-			if (annotation) chart.plot(Object.keys(app.state.annotations).indexOf(key)).annotations().fromJson(annotation);
+			if (annotation) {
+				let plotIndex = key.match(/\d+/g).map(Number);
+				chart.plot(...plotIndex).annotations().fromJson(annotation);
+			}
 		}
 	});
 
@@ -158,10 +161,10 @@ function createChart(container, updateChart) {
 	});
 
 	chart.listen('selectedRangeChangeFinish', function() {
-		app.state.settings.currentRange = {
-			min: chart.xScale().getMinimum(),
-			max: chart.xScale().getMaximum()
-		};
+		app.state.settings.currentRange = [
+			chart.xScale().getMinimum(),
+			chart.xScale().getMaximum()
+		];
 		$('.btn[data-action-type="saveAppState"]').removeClass('disabled');
 	});
 
@@ -187,7 +190,7 @@ function removeChart() {
 function setRange(range) {
 	if (range) {
 		setTimeout(function () {
-			chart.selectRange(range.min, range.max, true);
+			chart.selectRange(...range, true);
 		}, 10);
 	}
 }
@@ -201,7 +204,7 @@ function drawIndicators(indicators) {
 
 		if (indicators.hasOwnProperty(key)) {
 			indicatorPlot = chart.plot(
-				indicators[key].plotIndex
+				indicators[key].plotIndex !== undefined ? indicators[key].plotIndex : chart.getPlotsCount()
 			);
 			// for slow/fast stochastic
 			if (~indicatorName.toLowerCase().indexOf('stochastic')) {
@@ -262,9 +265,9 @@ function historyDataHandler(data) {
 	for (let key in app.state.annotations) {
 		const annotation = app.state.annotations[key];
 		if (annotation) {
-			let plotIndex = Object.keys(app.state.annotations).indexOf(key);
+			let plotIndex = key.match(/\d+/g).map(Number);
 			chart
-				.plot(plotIndex)
+				.plot(...plotIndex)
 				.annotations().fromJson(annotation);
 		}
 	}

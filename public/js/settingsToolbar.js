@@ -1,60 +1,33 @@
-/* global $, chart, app, mapping, setColClass */
+/* global $, chart, app, mapping */
 /* exported theme, indicatorList */
 "use strict";
 
-var $seriesTypeSelect = $('#seriesTypeSelect');
-var $indicatorTypeSelect = $('#indicatorTypeSelect');
-var $indicatorSettingsModal = $('#indicatorSettingsModal');
-var $resetBtn = $('.resetButton');
-var $addIndicatorBtn = $('#addIndicatorButton'); 
-var $indicatorNavPanel = $('#indicatorNavPanel');
-var $indicatorForm = $('#indicatorForm');
-var $loader = $('#loader');
-var $themeSelect = $('#themeSelect');
+const $loader = $('#loader');
+const $seriesTypeSelect = $('#seriesTypeSelect');
+const $indicatorTypeSelect = $('#indicatorTypeSelect');
+const $themeSelect = $('#themeSelect');
+const $resetBtn = $('.resetButton');
 
 app.state.settings.chartType = $seriesTypeSelect.val();
 
 // chart container id
-var chartContainer = 'chart-container';
+const chartContainer = 'chart-container';
 
-var indicatorsSettings = {
-	name: '',
-	plotIndex: 0,
-	defaultSettings: {},
-	seriesType: [
-		'area',
-		'column',
-		'jump-line',
-		'line',
-		'marker',
-		'spline',
-		'spline-area',
-		'step-area',
-		'step-line',
-		'stick',
-		'range-area',
-		'candlestick',
-		'ohlc'
-	]
-};
-
-// html markup for the indicator settings input
-var inputHtml =
-	'<div class="col-sm-4">' +
-	'<div class="form-group" id="indicatorFormGroup">' +
-	'<label for="" class="control-label"></label>' +
-	'<input type="number" class="form-control form-control-sm" id="">' +
-	'</div>' +
-	'</div>';
-
-// html markup for the indicator settings input
-var selectHtml =
-	'<div class="col-sm-4">' +
-	'<div class="form-group" id="indicatorFormGroup">' +
-	'<label for="" class="control-label"></label>' +
-	'<select class="form-control form-control-sm select show-tick" data-style="btn-light btn-sm" id=""></select>' +
-	'</div>' +
-	'</div>';
+const seriesTypes = [
+	'area',
+	'column',
+	'jump-line',
+	'line',
+	'marker',
+	'spline',
+	'spline-area',
+	'step-area',
+	'step-line',
+	'stick',
+	'range-area',
+	'candlestick',
+	'ohlc'
+];
 
 // this Sample will properly work only if upload it to a server and access via http or https
 if (window.location.protocol === 'file:') {
@@ -66,100 +39,8 @@ if (window.location.protocol === 'file:') {
 	});
 }
 
-// get indicators from file indicators.xml
-fetch('indicators.xml')
-	.then(res => res.text())
-	.then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
-	.then(data => {
-		$(data)
-			.find('indicator')
-			.each(function(index, item) {
-				var indicatorName = $(this).attr('type');
-				var description;
-				var $option = $('<option></option>');
-
-				// create option and append to indicator type select
-				$option
-					.attr({
-						value: indicatorName,
-						title: $(this)
-							.find('abbreviation')
-							.text(),
-						'data-abbr': $(this)
-							.find('abbreviation')
-							.text(),
-						'data-full-text': $(this)
-							.find('title')
-							.text()
-					})
-					.text(
-						$(this)
-							.find('title')
-							.text()
-					);
-
-				if ($(this).find('[name="plotIndex"]').length) {
-					$option.attr(
-						'data-plot-index',
-						$(this)
-							.find('[name="plotIndex"]')
-							.attr('value')
-					);
-				}
-
-				$indicatorTypeSelect.append($option);
-
-				indicatorsSettings['defaultSettings'][indicatorName] = {};
-
-				// set indicator settings to indicator object
-				$(item)
-					.find('defaults')
-					.children()
-					.each(function() {
-						var prop = $(this).attr('name');
-						var value = $(this).attr('value');
-
-						switch ($(this).attr('type')) {
-							case 'number':
-								value = +value;
-								break;
-							case 'array':
-								value = JSON.parse(value);
-								break;
-						}
-
-						indicatorsSettings['defaultSettings'][indicatorName][prop] = value;
-					});
-
-				// description from xml
-				description = $(item)
-					.find('description')
-					.text();
-
-				// save indicator overview
-				indicatorsSettings['defaultSettings'][indicatorName]['overview'] = {};
-				indicatorsSettings['defaultSettings'][indicatorName]['overview'][
-					'title'
-				] = $(item)
-					.find('title')
-					.text();
-				indicatorsSettings['defaultSettings'][indicatorName]['overview'][
-					'description'
-				] = description;
-			});
-
-		// sort option in select
-		var options = $indicatorTypeSelect.find('option').sort(function(a, b) {
-			return a.text.toUpperCase().localeCompare(b.text.toUpperCase());
-		});
-		$indicatorTypeSelect.append(options);
-
-		// init selectpicker
-		$indicatorTypeSelect.selectpicker();
-	});
-
-// event to set chart type
-$seriesTypeSelect.on('change', function() {
+// chart type select listener
+$seriesTypeSelect.on('change', function () {
 	const type = $(this).val();
 
 	// set chart type
@@ -172,77 +53,127 @@ $seriesTypeSelect.on('change', function() {
 	$('.btn[data-action-type="saveAppState"]').removeClass('disabled');
 });
 
-// event to set theme
-$themeSelect.on('change', function() {
+// theme select listener
+$themeSelect.on('change', function () {
 	$loader.show();
 	app.state.settings.theme = $(this).val();
 
-	app.state.settings.currentRange = {
-		min: chart.xScale().getMinimum(),
-		max: chart.xScale().getMaximum()
-	};
+	app.state.settings.currentRange = [
+		chart.xScale().getMinimum(),
+		chart.xScale().getMaximum()
+	];
 
 	app.removeChart();
-	
+
 	// init, create chart
 	app.createChart(chartContainer, true);
 
 	$('.btn[data-action-type="saveAppState"]').removeClass('disabled');
 });
 
-// event to show modal indicator settings
-$indicatorTypeSelect.on('changed.bs.select', function(e, selectedIndex) {
-	if (
-		$(this).val() === null ||
-		$(this).val().length < Object.keys(app.state.indicators).length
-	) {
-		app.state.settings.currentRange = {
-			min: chart.xScale().getMinimum(),
-			max: chart.xScale().getMaximum()
+
+// get indicators from file indicators.xml
+fetch('indicators.json')
+	.then(res => res.json())
+	.then(indicators => {
+		const sorted = {};
+		Object.keys(indicators).sort().forEach(function(key) {
+			sorted[key] = indicators[key];
+		});
+		for (let type in sorted) {
+			const option = document.createElement('option');
+			option.value = type;
+			option.title = option.dataset.abbr = indicators[type].abbreviation;
+			option.dataset.fullText = option.innerText = indicators[type].title;
+			if (indicators[type].onChartPlot) option.dataset.onChartPlot = indicators[type].onChartPlot;
+			$indicatorTypeSelect.append(option);
 		}
 
-		let removedKey = Object.keys(app.state.indicators).filter(x => !$(this).val().includes(x));
+		// event to show modal indicator settings
+		$indicatorTypeSelect.on('changed.bs.select', function (e, selectedIndex) {
+			if (
+				$(this).val() === null ||
+				$(this).val().length < Object.keys(app.state.indicators).length
+			) {
+				app.state.settings.currentRange = [
+					chart.xScale().getMinimum(),
+					chart.xScale().getMaximum()
+				];
 
-		const plotIndex = app.state.indicators[removedKey].plotIndex;
+				let removedKey = Object.keys(app.state.indicators).filter(x => !$(this).val().includes(x));
 
-		delete app.state.indicators[removedKey];
+				const plotIndex = app.state.indicators[removedKey].plotIndex;
 
-		if (plotIndex > 0) {
-			delete app.state.annotations['annotationsList' + plotIndex];
-		}
+				delete app.state.indicators[removedKey];
 
-		app.removeChart();
+				if (plotIndex > 0) {
+					delete app.state.annotations['annotationsList' + plotIndex];
+				}
 
-		app.createChart(chartContainer, true);
+				app.removeChart();
 
-		return;
-	}
+				app.createChart(chartContainer, true);
 
-	for (let i = 0; i < $(this).val().length; i++) {
-		if (
-			!~Object.keys(app.state.indicators).indexOf($(this).val()[i])
-		) {
-			// set indicator name
-			indicatorsSettings.name = $(this).val()[i];
-			break;
-		}
-	}
+				return;
+			}
 
-	let dataPlotIndex = $(this.options[selectedIndex]).data('plotIndex');
+			const type = Object.keys(sorted)[selectedIndex];
 
-	// set plot index
-	indicatorsSettings.plotIndex = dataPlotIndex !== undefined ? dataPlotIndex : $(this).val().length;
+			const indicator = Object.assign(sorted[type], {
+				type
+			});
 
-	// create html if form (input/select)
-	createHtmlToIndicatorForm();
-	// set default indicator settings to input/select
-	setDefaultIndicatorSettings();
+			// create html if form (input/select)
+			const $indicatorModal = $(renderIndicatorDialog(indicator));
 
-	// show indicator settings modal
-	$indicatorSettingsModal.modal('show');
-	// hide dropdown menu, select
-	$indicatorNavPanel.find('.select.open').removeClass('open');
-});
+			const $indicatorForm = $indicatorModal.find('#indicatorForm');
+
+			$indicatorForm.on('submit', e => {
+				e.preventDefault();
+				const settings = [];
+				const formdata = new FormData(e.target);
+				for (let [, value] of formdata.entries()) {
+					settings.push(value);
+				}
+				let plotIndex = indicator.onChartPlot ? 0 : chart.getPlotsCount();
+				if (chart.plot(plotIndex).getSeriesCount() && plotIndex) {
+					plotIndex++;
+				}
+
+				const plot = chart.plot(plotIndex);
+				// for slow/fast stochastic
+				if (indicator.type.toLowerCase().includes('stochastic')) {
+					plot['stochastic'].apply(plot, settings);
+				} else {
+					plot[type].apply(plot, [mapping, ...settings]);
+				}
+				// adding extra Y axis to the right side
+				plot.yAxis(1).orientation('right');
+
+				app.state.indicators[type] = {
+					settings,
+					plotIndex
+				}
+
+				$indicatorModal.modal('hide');
+			});
+
+			// init selectpicker to all select in indicator settings modal
+			$indicatorModal.on('show.bs.modal', function () {
+				setColClass($indicatorForm);
+				$(this).find('.select').selectpicker();
+			});
+
+			$indicatorModal.on('hidden.bs.modal', function () {
+				$indicatorModal.remove();
+			});
+
+			// show indicator settings modal
+			$indicatorModal.modal('show');
+
+			$indicatorModal.find('button').on('click', indicatorDismissHandler);
+		});
+	});
 
 // remove selected class, if indicator not selected
 function indicatorDismissHandler(e) {
@@ -271,76 +202,38 @@ function indicatorDismissHandler(e) {
 	}
 }
 
-$indicatorSettingsModal.find('button').on('click', indicatorDismissHandler);
-
-// init selectpicker to all select in indicator settings modal
-$indicatorSettingsModal.on('show.bs.modal', function() {
-	$indicatorForm.find('.select').selectpicker();
-});
-
 // reset all settings
-$resetBtn.on('click', function(e) {
+$resetBtn.on('click', function (e) {
 	e.preventDefault();
 
 	//set default theme
 	$themeSelect.selectpicker('val', 'darkEarth');
+
+	// reset app state
 	app.state.settings.theme = 'darkEarth';
 	app.state.settings.chartType = 'candlestick';
 	app.state.indicators = {};
 	app.state.annotations = {}
 
+	// remove chart
 	app.removeChart();
-	// reset saved settings
-	
+
 
 	// select series type
 	$seriesTypeSelect.val('candlestick').selectpicker('refresh');
+	
 	// reset indicators select
 	$indicatorTypeSelect.val('').selectpicker('refresh');
+	
 	// init, create chart
 	app.createChart(chartContainer, true);
-});
-
-// event to add indicator
-$addIndicatorBtn.on('click', function() {
-	let {plotIndex, name} = indicatorsSettings;
-	const indicator = indicatorsSettings.defaultSettings[name];
-	const settings = [mapping];
-
-	for (let key in indicator) {
-		if (key !== 'overview' && key !== 'plotIndex') {
-			let val = $('#' + key).val();
-			val = val === 'true' || val === 'false' ? val === 'true' : val;
-			settings.push(val);
-		}
-	}
-	
-	const plot = chart.plot(plotIndex);
-	// for slow/fast stochastic
-	if (~name.toLowerCase().indexOf('stochastic')) {
-		plot['stochastic'].apply(plot, settings);
-	} else {
-		plot[name].apply(plot, settings);
-	}
-	// adding extra Y axis to the right side
-	plot.yAxis(1).orientation('right');
-	// hide indicator settings modal
-	$indicatorSettingsModal.modal('hide');
-
-	// save settings for indicator
-	app.state.indicators[name] = {
-		settings: settings.slice(1, settings.length),
-		plotIndex
-	};
-
-	$('.btn[data-action-type="saveAppState"]').removeClass('disabled');
 });
 
 function getInputLabelText(keyText) {
 	let text = '';
 	const result = [];
 
-	keyText.split(/(?=[A-Z])/).filter(function(item) {
+	keyText.split(/(?=[A-Z])/).filter(function (item) {
 		if (item.length === 1) {
 			text += item;
 		} else {
@@ -351,7 +244,7 @@ function getInputLabelText(keyText) {
 	text = text.trim();
 	text = text[0].toUpperCase() + text.substr(1);
 
-	text.split(' ').filter(function(item, index) {
+	text.split(' ').filter(function (item, index) {
 		if (item.length === 1 && index !== text.split(' ').length - 1) {
 			result.push(item + '-');
 		} else {
@@ -362,109 +255,91 @@ function getInputLabelText(keyText) {
 	return result.join(' ').replace(/-\s/, '-');
 }
 
-function createHtmlToIndicatorForm() {
-	const {name, seriesType} = indicatorsSettings;
-	const indicatorSettings =
-		indicatorsSettings.defaultSettings[name];
-	let $option;
-	let i = 0;
-
-	$('#indicatorSettingsModalTitle').text(
-		indicatorSettings.overview.title
-	);
-
-	// empty form
-	$indicatorForm.empty();
-	// create row
-	$indicatorForm.append('<div class="row"></div>');
-	const $indicatorFormRow = $indicatorForm.find('.row');
-
-	for (let key in indicatorSettings) {
-		if (
-			indicatorSettings.hasOwnProperty(key) &&
-			key !== 'overview' &&
-			key !== 'plotIndex'
-		) {
-			if (typeof indicatorSettings[key] === 'string') {
-				$indicatorFormRow.append(selectHtml);
-				let $indicatorFormGroup = $('#indicatorFormGroup');
-				$indicatorFormGroup.find('select').attr('id', key);
-				$indicatorFormGroup
-					.find('label')
-					.attr('for', key)
-					.text(getInputLabelText(key));
-
-				for (i = 0; i < seriesType.length; i++) {
-					$option = $('<option></option>');
-					$option.val(seriesType[i].toLowerCase());
-					$option.text(getInputLabelText(seriesType[i]));
-					$indicatorFormGroup.find('select').append($option);
-				}
-
-				$indicatorFormGroup.removeAttr('id');
-			} else if (typeof indicatorSettings[key] === 'number') {
-				$indicatorFormRow.append(inputHtml);
-				let $indicatorFormGroup = $('#indicatorFormGroup');
-				$indicatorFormGroup.find('input').attr('id', key);
-
-				$indicatorFormGroup
-					.removeAttr('id')
-					.find('label')
-					.attr('for', key)
-					.text(getInputLabelText(key));
-			} else if (typeof indicatorSettings[key] === 'object') {
-				$indicatorFormRow.append(selectHtml);
-				let $indicatorFormGroup = $('#indicatorFormGroup');
-				$indicatorFormGroup.find('select').attr('id', key);
-				$indicatorFormGroup
-					.find('label')
-					.attr('for', key)
-					.text(getInputLabelText(key));
-
-				for (i = 0; i < indicatorSettings[key].length; i++) {
-					$option = $('<option></option>');
-					$option.val(indicatorSettings[key][i].toLowerCase());
-					$option.text(indicatorSettings[key][i]);
-					$indicatorFormGroup.find('select').append($option);
-				}
-
-				$indicatorFormGroup.removeAttr('id');
-			}
-		}
+function renderSelectOptions(value, isSeriesType) {
+	let result = '';
+	const items = isSeriesType ? seriesTypes : value;
+	for (let item of items) {
+		result += `<option value="${item}"${isSeriesType && item === value ? ' selected' : ''}>
+			${isSeriesType ? getInputLabelText(item) : item}
+		</option>`;
 	}
-
-	// col class to form el
-	setColClass($indicatorForm);
-	// indicator overview text
-	if ($indicatorForm.find($("[class*='col-sm-']")).length == 0) {
-		$indicatorForm
-			.find($('[class="row"]'))
-			.append('<div class="col-sm-12" id="overviewText"></div>');
-	} else {
-		$indicatorForm
-			.find($("[class*='col-sm-']"))
-			.last()
-			.after('<div class="col-sm-12" id="overviewText"></div>');
-	}
-	$indicatorForm
-		.find('#overviewText')
-		.append(
-			indicatorsSettings.defaultSettings[name].overview
-				.description
-		);
+	return result;
 }
 
-function setDefaultIndicatorSettings() {
-	const indicatorSettings =
-		indicatorsSettings.defaultSettings[indicatorsSettings.name];
+function renderIndicatorFormField(field, value) {
+	switch (typeof value) {
+		case 'number':
+			return `<div class="col-sm-4">
+				<div class="form-group">
+					<label for="${field}" class="control-label">${getInputLabelText(field)}</label>
+					<input name="${field}" type="number" class="form-control form-control-sm" id="${field}" value="${value}">
+				</div>
+			</div>`;
+		case 'string':
+			return `<div class="col-sm-4">
+				<div class="form-group">
+					<label for="${field}" class="control-label">${getInputLabelText(field)}</label>
+					<select name="${field}" class="form-control form-control-sm select show-tick" data-style="btn-light btn-sm" id="">${renderSelectOptions(value, true)}</select>
+				</div>
+			</div>`
+		case 'object':
+			return `<div class="col-sm-4">
+			<div class="form-group">
+				<label for="${field}" class="control-label">${getInputLabelText(field)}</label>
+				<select name="${field}" class="form-control form-control-sm select show-tick" data-style="btn-light btn-sm" id="">${renderSelectOptions(value)}</select>
+			</div>
+		</div>`
+	}
+}
 
-	for (let key in indicatorSettings) {
-		if (
-			indicatorSettings.hasOwnProperty(key) &&
-			key !== 'overview' &&
-			key !== 'plotIndex'
-		) {
-			$('#' + key).val(indicatorSettings[key]);
+function renderIndicatorForm(indicator) {
+	let result = '';
+	for (let key in indicator.defaults) {
+		result += renderIndicatorFormField(key, indicator.defaults[key]);
+	}
+	result += `<div class="col-sm-12" id="overviewText">${indicator.description}</div>`
+	return result;
+}
+
+function renderIndicatorDialog(indicator) {
+	return `<div class="modal fade" id="indicatorSettingsModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<form id="indicatorForm" class="form">
+						<div class="modal-header">
+							<h4 class="modal-title" id="indicatorSettingsModalTitle">
+								${indicator.title}
+							</h4>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="row">${renderIndicatorForm(indicator)}</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">
+								Close
+							</button>
+							<button type="submit" class="btn btn-primary btn-sm" id="addIndicatorButton">
+								Add Indicator
+							</button>
+						</div>
+					</form>
+                </div>
+            </div>
+        </div>`
+}
+
+function setColClass($el) {
+	const cols = $el.find('.col-sm-4');
+	const colsCount = cols.length;
+	const leftover = colsCount % 3;
+
+	if (leftover) {
+		for (let i = colsCount - leftover; i <= colsCount; i++) {
+			$(cols[i]).removeClass('col-sm-4').addClass('col-sm-' + 12 / leftover);
 		}
 	}
+
 }
