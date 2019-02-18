@@ -21,7 +21,7 @@ $strokeSettings
 	});
 
 $fontSettings.on('changed.bs.select refreshed.bs.select', function(evt) {
-	var icons = $(evt.target).next().find('.filter-option-inner-inner').find('i');
+	const icons = $(evt.target).next().find('.filter-option-inner-inner').find('i');
 	$(evt.target).next().find('.filter-option-inner-inner').html('');
 	for (const icon of icons) {
 		$(evt.target).next().find('.filter-option-inner-inner').append(icon);
@@ -34,13 +34,12 @@ function selectTools(toolbarType) {
 }
 
 function createPageColorPicker() {
-	var colorPicker = $('.colorpickerplus-dropdown .colorpickerplus-container');
-	var strokeWidth;
-	var STROKE_WIDTH = 1;
+	const colorPicker = $('.colorpickerplus-dropdown .colorpickerplus-container');
 	colorPicker.colorpickerembed();
 	colorPicker.on('changeColor', function(e, color) {
-		var annotation = chart.annotations().getSelectedAnnotation();
+		const annotation = chart.annotations().getSelectedAnnotation();
 		let annotationBackground = annotation;
+		let strokeWidth, strokeDash, settings;
 
 		if (annotation) {
 			if (annotation.type === 'label') {
@@ -59,9 +58,9 @@ function createPageColorPicker() {
 					updateAnnotationsState();
 					break;
 				case 'stroke':
-					strokeWidth = annotationBackground.stroke().thickness || STROKE_WIDTH;
-					var strokeDash = annotationBackground.stroke().dash || '';
-					var settings = {
+					strokeWidth = annotationBackground.stroke().thickness || 1;
+					strokeDash = annotationBackground.stroke().dash || '';
+					settings = {
 						thickness: strokeWidth,
 						color: color,
 						dash: strokeDash
@@ -115,7 +114,7 @@ function initTooltip(position) {
 	});
 
 	$('.selectpicker').on('loaded.bs.select', function(e) {
-		var btn = $(e.target).next('button');
+		const btn = $(e.target).next('button');
 		if (btn.length) {
 			$(btn).tooltip({
 				trigger: 'hover',

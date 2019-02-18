@@ -7,17 +7,21 @@ let annotationsColor;
 
 function updateAnnotationsState() {
 	for (let i=0; i < chart.getPlotsCount(); i++) {
-		if (!chart.plot(i).getSeriesCount()) i++;
-		let json = chart
-			.plot(i)
-			.annotations()
-			.toJson(true);
-		app.state.annotations['annotationsList' + i] = json;
+		if (chart.plot(i).annotations().getAnnotationsCount() !== 0) {
+			let json = chart
+				.plot(i)
+				.annotations()
+				.toJson(true);
+			app.state.annotations['annotationsList' + i] = json;
+		} else if (chart.plot(i).getSeriesCount() === 0) {
+			chart.plot(i, false);
+		}
 	}
 	$('.btn[data-action-type="saveAppState"]').removeClass('disabled');
 }
 
 function changeAnnotations() {
+	chart.annotations().unselect();
 	setTimeout(() => {
 		const $target = $(this);
 		const markerSize = $markerSize.val();
@@ -174,7 +178,7 @@ function onAnnotationSelect(evt) {
 		fontSettings = [];
 
 		$labelMethod.each(function () {
-			var method = $(this).data().labelMethod;
+			const method = $(this).data().labelMethod;
 
 			fontSettings.push(annotation[method]());
 		});
@@ -274,7 +278,7 @@ function updatePropertiesBySelectedAnnotation(strokeWidth, strokeType) {
 			break;
 	}
 
-	var settings = {
+	const settings = {
 		thickness: strokeWidth,
 		color: strokeColor,
 		dash: strokeType

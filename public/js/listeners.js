@@ -32,10 +32,10 @@ $('.btn[data-toolbar-type]').click(function () {
 
 // listener for action buttons
 $('.btn[data-action-type]').click(function (evt) {
-    var annotation = chart.annotations().getSelectedAnnotation(); // get selected annotation
-    var $target = $(evt.currentTarget); // get target 
+    const annotation = chart.annotations().getSelectedAnnotation(); // get selected annotation
+    const $target = $(evt.currentTarget); // get target 
     $target.blur();
-    var type = $target.attr('data-action-type'); // get action type
+    const type = $target.attr('data-action-type'); // get action type
 
     switch (type) {
         case 'removeAllAnnotations':
