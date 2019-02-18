@@ -42,17 +42,13 @@ anychart.onDocumentReady(function () {
 		}
 
 
-		// socket.emit('timerStart');
+		socket.emit('timerStart');
 		timer = 0;
 		//launch timer
 		if (secondCounter == null) {
 			secondCounter = setInterval(function () {
 				timer += 1;
-				chart.title(
-					'EUR.FOREX data started from Jan 2000 and 1 minute ticker\nThe last update was: ' +
-					timer +
-					' seconds ago'
-				);
+				chart.title(`EUR.FOREX data started from Jan 2000 and 1 minute ticker\nThe last update was: ${timer} seconds ago`);
 			}, 1000);
 		}
 	});
