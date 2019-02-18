@@ -2,6 +2,7 @@
 /* exported selectTools, contextMenuItemsFormatter */
 "use strict";
 
+// event to set stroke dash icons according stroke width
 $strokeSettings
 	.filter('.size')
 	.on('changed.bs.select refreshed.bs.select', function(e, i, sel, prev) {
@@ -20,6 +21,7 @@ $strokeSettings
 		$strokeSettings.filter('.dash').selectpicker('refresh');
 	});
 
+// event to remove font settings options text
 $fontSettings.on('changed.bs.select refreshed.bs.select', function(evt) {
 	const icons = $(evt.target).next().find('.filter-option-inner-inner').find('i');
 	$(evt.target).next().find('.filter-option-inner-inner').html('');
@@ -34,9 +36,15 @@ function selectTools(toolbarType) {
 }
 
 function createPageColorPicker() {
+	// get color pickers containers
 	const colorPicker = $('.colorpickerplus-dropdown .colorpickerplus-container');
+
+	// init colorpickers
 	colorPicker.colorpickerembed();
+
+	// listen color changing
 	colorPicker.on('changeColor', function(e, color) {
+		//get annotation
 		const annotation = chart.annotations().getSelectedAnnotation();
 		let annotationBackground = annotation;
 		let strokeWidth, strokeDash, settings;
@@ -104,6 +112,7 @@ function createPageColorPicker() {
 	});
 }
 
+// init application tooltips
 function initTooltip(position) {
 	$(document).ready(function() {
 		$('[data-title]').tooltip({

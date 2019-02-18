@@ -148,6 +148,7 @@ function createChart(container, updateChart) {
 		}
 	});
 
+	// add hidden text area for the labels text editing
 	chart.listen('chartDraw', function () {
 		const $body = $('body');
 		const $textArea = '<textarea id="annotation-label"></textarea>';
@@ -160,6 +161,7 @@ function createChart(container, updateChart) {
 		}
 	});
 
+	// update current range in app state
 	chart.listen('selectedRangeChangeFinish', function() {
 		app.state.settings.currentRange = [
 			chart.xScale().getMinimum(),

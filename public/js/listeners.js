@@ -11,7 +11,10 @@ $('select.choose-drawing-tools, select.choose-marker').on('shown.bs.select', () 
     let annotation = chart.annotations().getSelectedAnnotation();
 	if (annotation) chart.annotations().unselect();
 });
+
+// create new
 $('#newLabel').click(changeAnnotations);
+
 $('#annotation-label-autosize').on('click', function () {
     // set text's bounds as an annotation size
     const annotation = chart.annotations().getSelectedAnnotation();

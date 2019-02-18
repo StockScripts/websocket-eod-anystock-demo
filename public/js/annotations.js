@@ -3,8 +3,7 @@
 
 "use strict";
 
-let annotationsColor;
-
+// update annotation settings state
 function updateAnnotationsState() {
 	for (let i=0; i < chart.getPlotsCount(); i++) {
 		if (chart.plot(i).annotations().getAnnotationsCount() !== 0) {
@@ -21,8 +20,11 @@ function updateAnnotationsState() {
 }
 
 function changeAnnotations() {
-	chart.annotations().unselect();
+	//unselect selected annotations
+	let annotation = chart.annotations().getSelectedAnnotation();
+	if (annotation) chart.annotations().unselect();
 	setTimeout(() => {
+
 		const $target = $(this);
 		const markerSize = $markerSize.val();
 		const fontSize = $fontSize.val();
@@ -70,8 +72,7 @@ function changeAnnotations() {
 		const type = $target.data().annotationType;
 
 		const drawingSettings = {
-			type: type === 'drawing' ? $target.val() : type,
-			color: annotationsColor
+			type: type === 'drawing' ? $target.val() : type
 		};
 
 		// get annotation drawing settings

@@ -76,10 +76,14 @@ $themeSelect.on('change', function () {
 fetch('indicators.json')
 	.then(res => res.json())
 	.then(indicators => {
-		const sorted = {};
+		const sorted = {}; // empty object for sorted indicators data
+
+		// sort indicators alphabetically
 		Object.keys(indicators).sort().forEach(function(key) {
 			sorted[key] = indicators[key];
 		});
+
+		// create options for indicators
 		for (let type in sorted) {
 			const option = document.createElement('option');
 			option.value = type;
@@ -91,43 +95,50 @@ fetch('indicators.json')
 
 		// event to show modal indicator settings
 		$indicatorTypeSelect.on('changed.bs.select', function (e, selectedIndex) {
-			if (
-				$(this).val() === null ||
-				$(this).val().length < Object.keys(app.state.indicators).length
-			) {
+			// if indicator unselected save app state, remove indicator form state and re-draw chart
+			if ($(this).val() === null || $(this).val().length < Object.keys(app.state.indicators).length) {
 				app.state.settings.currentRange = [
 					chart.xScale().getMinimum(),
 					chart.xScale().getMaximum()
 				];
 
-				let removedKey = Object.keys(app.state.indicators).filter(x => !$(this).val().includes(x));
+				// get unselected indicator type
+				const removedKey = Object.keys(app.state.indicators).filter(x => !$(this).val().includes(x));
 
+				// get unselected indicator plot index
 				const plotIndex = app.state.indicators[removedKey].plotIndex;
 
+				// remove indicator settings from state
 				delete app.state.indicators[removedKey];
 
+				// delete indicator annotations from state only if plot is empty
 				if (plotIndex > 0) {
 					delete app.state.annotations['annotationsList' + plotIndex];
 				}
 
+				// re-draw chart
 				app.removeChart();
-
 				app.createChart(chartContainer, true);
 
 				return;
 			}
 
+
+			// get indicator type
 			const type = Object.keys(sorted)[selectedIndex];
 
+			// get indicator settings
 			const indicator = Object.assign(sorted[type], {
 				type
 			});
 
-			// create html if form (input/select)
+			// create indicator modal dialog
 			const $indicatorModal = $(renderIndicatorDialog(indicator));
 
+			// get indicator form
 			const $indicatorForm = $indicatorModal.find('#indicatorForm');
 
+			// draw indicator on form submit
 			$indicatorForm.on('submit', e => {
 				e.preventDefault();
 				const settings = [];
@@ -135,12 +146,16 @@ fetch('indicators.json')
 				for (let [, value] of formdata.entries()) {
 					settings.push(value);
 				}
+
+				// get indicator plot index
 				let plotIndex = indicator.onChartPlot ? 0 : chart.getPlotsCount();
 				if (chart.plot(plotIndex).getSeriesCount() && plotIndex) {
 					plotIndex++;
 				}
 
+				// create plot
 				const plot = chart.plot(plotIndex);
+				
 				// for slow/fast stochastic
 				if (indicator.type.toLowerCase().includes('stochastic')) {
 					plot['stochastic'].apply(plot, settings);
@@ -150,20 +165,23 @@ fetch('indicators.json')
 				// adding extra Y axis to the right side
 				plot.yAxis(1).orientation('right');
 
+				// save settings to the app state
 				app.state.indicators[type] = {
 					settings,
 					plotIndex
 				}
 
+				// hide modal
 				$indicatorModal.modal('hide');
 			});
 
-			// init selectpicker to all select in indicator settings modal
+			// event to init selectpicker to all select in indicator settings modal
 			$indicatorModal.on('show.bs.modal', function () {
 				setColClass($indicatorForm);
 				$(this).find('.select').selectpicker();
 			});
 
+			// event to remove modal from DOM
 			$indicatorModal.on('hidden.bs.modal', function () {
 				$indicatorModal.remove();
 			});
@@ -186,7 +204,7 @@ function indicatorDismissHandler(e) {
 					$indicatorTypeSelect.val()[i]
 				)
 			) {
-				// set indicator name
+				// set indicator type
 				lastAddedIndicator = $indicatorTypeSelect.val()[i];
 				break;
 			}
@@ -229,6 +247,7 @@ $resetBtn.on('click', function (e) {
 	app.createChart(chartContainer, true);
 });
 
+// get label text from object key
 function getInputLabelText(keyText) {
 	let text = '';
 	const result = [];
@@ -331,6 +350,7 @@ function renderIndicatorDialog(indicator) {
         </div>`
 }
 
+// set columns class
 function setColClass($el) {
 	const cols = $el.find('.col-sm-4');
 	const colsCount = cols.length;
