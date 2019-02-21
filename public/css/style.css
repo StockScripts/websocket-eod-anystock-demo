@@ -453,6 +453,7 @@ button.dropdown-toggle {
 
 #indicatorForm label {
     font-weight: 400;
+    text-transform: capitalize;
 }
 
 #indicatorForm input::-webkit-outer-spin-button,

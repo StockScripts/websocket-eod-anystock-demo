@@ -1,11 +1,21 @@
+"use strict";
+
 const express = require('express');
-const app = express();
 const path = require('path');
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const http = require('http');
+const socketio = require('socket.io');
 const fetch = require('node-fetch');
 const papa = require('papaparse');
 
+const app = express();
+const server = http.Server(app);
+const io = socketio(server);
+
+/**
+ * get historical data from EOD and send it to client
+ * @param  {any} socket socket.io client
+ * @returns {void}
+ */
 function eodHistoricalRequest(socket) {
   fetch('https://eodhistoricaldata.com/api/eod/EUR.FOREX?api_token=OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX&period=d')
     .then(res => res.text())
@@ -15,7 +25,11 @@ function eodHistoricalRequest(socket) {
     })
     .catch(err => console.log(err));
 }
-
+/** 
+ * get real-time data from EOD and send it to client
+ * @param  {any} socket socket.io client
+ * @returns {void}
+ */
 function eodRealTimeRequest(socket) {
   fetch('https://eodhistoricaldata.com/api/real-time/EUR.FOREX?api_token=anychart-5b084a5bd99e75.54278180&fmt=json')
     .then(res => res.json())
@@ -23,24 +37,34 @@ function eodRealTimeRequest(socket) {
     .catch(err => console.log(err));
 }
 
-app.use(express.static(path.join(__dirname + '/public')));
+// set static directory for express app
+app.use(express.static(path.join(__dirname, '/public')));
 
-//basic get request handler
-app.get('/', function(req, res) { //on html request of root directory, run callback function
-  res.sendFile(path.join(__dirname, '/public/index.html')); //send html file named "index.html"
+//on html request of root directory, run callback function
+app.get('/', (req, res) => {
+  //send html file named "index.html"
+  res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-
-io.on('connection', function(socket) {
-  console.log('a user connected');
+// init data service on socket connection
+io.on('connection', socket => {
   eodHistoricalRequest(socket);
+
+  let realTimeDataInterval;
+
+  // on timerStart event get real-time data from EOD and set interval for real-time data
   socket.on('timerStart', () => {
     eodRealTimeRequest(socket);
-    setInterval(() => eodRealTimeRequest(socket), 60000);
+    realTimeDataInterval = setInterval(() => eodRealTimeRequest(socket), 60000);
+  })
+
+  // clear interval for real-time dat on socket client  disconnection
+  socket.on('disconnect', () => {
+    clearInterval(realTimeDataInterval)
   })
 });
 
 // Runs express server
-http.listen(8081, function() {
+server.listen(8081, function() {
   console.log('Example app is listening on port ' + 8081 + '!\n');
 });

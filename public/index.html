@@ -130,7 +130,7 @@
                                                 <span class="input-group-text">Drawing Tools:</span>
                                             </div>
                                             <select class="select choose-drawing-tools selectpicker input-group-append"
-                                                data-annotation-type="drawing" title="Select drawing tool" data-tooltip-title="Select drawing tool">
+                                                data-annotation-type="drawing" title="Select drawing tool" data-tooltip-title="Select drawing tool" data-focus-off="true">
                                                 <option data-icon="ac ac-line" value="line" aria-label="Center Align">
                                                     &emsp;Line Segment
                                                     </button>
@@ -183,7 +183,8 @@
                                         <div id="marker" class="tools input-group input-group-sm flex-nowrap">
                                             <select class="selectpicker show-menu-arrow select choose-marker input-group-prepend"
                                                 id="select-marker-type" title="Markers" data-tooltip-title="Select marker type" data-width="fit"
-                                                data-max-options="1" data-annotation-type="marker">
+                                                data-max-options="1" data-annotation-type="marker"
+                                                data-focus-off="true">
                                                 <option data-icon="ac ac-arrow-up-square" value="arrowUp"
                                                     data-marker-anchor="center-top">Up
                                                     Arrow
@@ -251,7 +252,8 @@
                                             </select>
                                             <select class="selectpicker show-menu-arrow select select-marker-size input-group-append"
                                                 id="select-marker-size" data-tooltip-title="Marker size" data-width="fit"
-                                                data-max-options="1">
+                                                data-max-options="1"
+                                                data-focus-off="true">
                                                 <option data-settings="width" value="5">5 px</option>
                                                 <option data-settings="width" value="10">10 px</option>
                                                 <option data-settings="width" value="15">15 px</option>
@@ -296,7 +298,8 @@
                                                         </div>
     
                                                         <select class="selectpicker select select-font-size input-group-append"
-                                                            id="select-font-size" data-tooltip-title="Font size" data-width="fit">
+                                                            id="select-font-size" data-tooltip-title="Font size" data-width="fit"
+                                                            data-focus-off="true">
                                                             <option data-settings="width" value="5">5 px</option>
                                                             <option data-settings="width" value="10">10 px</option>
                                                             <option data-settings="width" value="15">15 px</option>
@@ -306,7 +309,8 @@
     
                                                         <select class="select selectpicker input-group-append" id="select-font-style"
                                                             title="Font settings" data-tooltip-title="Select font style, decoration and position" data-width="fit" multiple>
-                                                            <optgroup label="Font style" data-max-options="2">
+                                                            <optgroup label="Font style" data-max-options="2"
+                                                            data-focus-off="true">
                                                                 <option data-icon="ac-italic" data-label-method="fontStyle"
                                                                     value="italic">Italic
                                                                 </option>
@@ -376,7 +380,7 @@
                                                 </ul>
                                             </div>
                                             <select class="select strokeSettings size selectpicker input-group-append"
-                                                data-width="fit" data-tooltip-title="Stroke size">
+                                                data-width="fit" data-tooltip-title="Stroke size" data-focus-off="true">
                                                 <option value="1" selected>1px</option>
                                                 <option value="2">2px</option>
                                                 <option value="3">3px</option>
@@ -384,7 +388,7 @@
                                                 <option value="5">5px</option>
                                             </select>
                                             <select class="select strokeSettings dash selectpicker input-group-append"
-                                                data-width="fit" data-tooltip-title="Stroke type">
+                                                data-width="fit" data-tooltip-title="Stroke type" data-focus-off="true">
                                                 <option value="solid" data-icon="ac ac-h-line-thickness-1"></option>
                                                 <option value="dotted" data-icon="ac ac-h-line-dotted-1"></option>
                                                 <option value="dashed" data-icon="ac ac-h-line-dashed-1"></option>
