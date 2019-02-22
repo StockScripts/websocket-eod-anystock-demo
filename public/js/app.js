@@ -6,7 +6,7 @@ const $fontSize = $('#select-font-size'); // font size select
 const $markerSize = $('#select-marker-size'); // marker size select
 const $markerType = $('#select-marker-type'); // marker size select
 const $fontSettings = $('#select-font-style'); // font style select
-const $labelMethod = $('[data-label-method]'); //  label's method select
+const $labelMethod = $('[data-label-method]'); //  font settings select
 
 let $annotationLabel, chart, series, dataTable, mapping;
 let timer = 0;

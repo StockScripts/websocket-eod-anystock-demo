@@ -96,11 +96,11 @@ function createPageColorPicker() {
     if (color === null) {
       $(`#${colorType} .color-fill-icon`)
         .addClass('colorpicker-color');
-		} else {
+    } else {
       $(`#${colorType} .color-fill-icon`)
         .removeClass('colorpicker-color')
         .css('background-color', color);
-		}
+    }
   });
 }
 
@@ -136,26 +136,26 @@ function initTooltip(placement) {
  * @returns {Object} updated context menu items object
  */
 function contextMenuItemsFormatter(items) {
-	// insert context menu item on 0 position
-	items['annotations-remove-selected'] = {
-		text: 'Remove selected annotation',
-		action: removeSelectedAnnotation,
-		index: -10
-	};
+  // insert context menu item on 0 position
+  items['annotations-remove-selected'] = {
+    text: 'Remove selected annotation',
+    action: removeSelectedAnnotation,
+    index: -10
+  };
 
-	// insert context menu item on 1 position
-	items['annotations-remove-all'] = {
-		text: 'Remove all annotations',
-		action: removeAllAnnotation,
-		index: -5
-	};
+  // insert context menu item on 1 position
+  items['annotations-remove-all'] = {
+    text: 'Remove all annotations',
+    action: removeAllAnnotation,
+    index: -5
+  };
 
-	// insert context menu separator
-	items['annotations-separator'] = {
-		index: -4
-	};
+  // insert context menu separator
+  items['annotations-separator'] = {
+    index: -4
+  };
 
-	return items;
+  return items;
 }
 
 initTooltip('bottom');
