@@ -106,7 +106,7 @@ fetch('indicators.json')
         // remove indicator settings from state
         app.state.indicators.splice(removedIndex, 1);
 
-        // delete indicator annotations from state only if plot is empty
+        // delete indicator annotations from state only if indicator's plot index gt 0
         if (plotIndex > 0) 
           app.state.annotations[plotIndex] = null;
 
