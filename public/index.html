@@ -2,575 +2,451 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>WebSocket and Stock Analysis Tools</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>WebSocket and Stock Analysis Tools</title>
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" type="image/ico" href="anychart.ico" />
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/ico" href="anychart.ico" />
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="css/vendor/bootstrap.min.css">
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="css/vendor/bootstrap.min.css">
 
-    <!-- ColorPicker -->
-    <link href="css/vendor/bootstrap-colorpicker.min.css" rel="stylesheet" />
-    <link href="css/vendor/bootstrap-colorpicker-plus.min.css" rel="stylesheet" />
+  <!-- ColorPicker -->
+  <link href="css/vendor/bootstrap-colorpicker.min.css" rel="stylesheet" />
+  <link href="css/vendor/bootstrap-colorpicker-plus.min.css" rel="stylesheet" />
 
-    <!-- AnyChart UI -->
-    <link rel="stylesheet" href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css" />
-    <link rel="stylesheet" href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css" />
+  <!-- AnyChart UI -->
+  <link rel="stylesheet" href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css" />
+  <link rel="stylesheet" href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css" />
 
-    <!-- Latest compiled and minified CSS Bootstrap Select -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+  <!-- Latest compiled and minified CSS Bootstrap Select -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 
-    <!-- css -->
-    <link rel="stylesheet" href="css/style.css" />
+  <!-- css -->
+  <link rel="stylesheet" href="css/style.css" />
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-			<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-		<![endif]-->
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
 </head>
 
 <body>
-    <div class="app">
+  <div class="app">
 
-        <header>
-            <h3 class="text-center">
-                Stock analysis tool demo with real-time data by EODHistoricalData
-            </h3>
-            <div id="settingsPanel" class="tab-content">
-                <div id="empty" class="tab-pane active"></div>
-                <div id="indicator-panel" role="tabpanel" class="tab-pane">
-                    <div id="indicatorNavPanel" class="container-fluid">
-                        <div class="row flex-nowrap justify-content-between">
-                            <div class="col-auto">
-                                <div class="row">
-                                    <div class="col-auto">
-                                        <div class="input-group input-group-sm flex-nowrap">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text">Series Type:</span>
-                                            </div>
-                                            <select title="Series Type" id="seriesTypeSelect" class="select selectpicker show-tick input-group-append" data-tooltip-title="Select chart series type" data-focus-off="true">
-                                                <!--series constructors-->
-                                                <option value="candlestick" selected>Candlestick Chart</option>
-                                                <option value="ohlc">OHLC Chart</option>
-                                                <option value="rangeArea">Range Area Chart</option>
-                                                <option value="rangeColumn">Range Column Chart</option>
-                                                <option value="rangeSplineArea">Range Spline Area Chart</option>
-                                                <option value="rangeStepArea">Range Step Area Chart</option>
-                                                <!---->
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <div class="input-group input-group-sm flex-nowrap">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text">Technical Indicators:</span>
-                                            </div>
-                                            <select class="select selectpicker show-tick input-group-append" multiple data-width="250"
-                                                id="indicatorTypeSelect" title="Add Indicators" data-tooltip-title="Add indicators" data-focus-off="true">
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <div class="input-group input-group-sm flex-nowrap">
-                                            <div class="input-group-prepend"><span class="input-group-text">Chart Theme:</span></div>
-                                            <select data-tooltip-title="Select chart theme" id="themeSelect" class="select selectpicker show-tick input-group-append" data-width="auto" data-focus-off="true">
-                                                <option value="coffee">Coffee</option>
-                                                <option value="default">Default</option>
-                                                <option value="darkBlue">Dark Blue</option>
-                                                <option value="lightBlue">Light Blue</option>
-                                                <option value="darkEarth" selected>Dark Earth</option>
-                                                <option value="lightEarth">Light Earth</option>
-                                                <option value="darkGlamour">Dark Glamour</option>
-                                                <option value="darkTurquoise">Dark Turquoise</option>
-                                                <option value="lightGlamour">Light Glamour</option>
-                                                <option value="darkProvence">Dark Provence</option>
-                                                <option value="lightProvence">Light Provence</option>
-                                                <option value="lightTurquoise">Light Turquoise</option>
-                                                <option value="monochrome">Monochrome</option>
-                                                <option value="morning">Morning</option>
-                                                <option value="pastel">Pastel</option>
-                                                <option value="sea">Sea</option>
-                                                <option value="wines">Wines</option>
-                                            </select>
-                                        </div>
-                                    </div>  
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="btn-group auto-width">
-                                    <button data-action-type="saveAppState" type="button" class="btn btn-sm btn-secondary border-0 disabled"
-                                        aria-label="Center Align" data-toggle="tooltip" data-title="Save chart settings and indicators">
-                                        <i class="ac ac-save" aria-hidden="true"></i>
-                                        <span>&nbsp;Save</span>
-                                    </button>
-                                    <button class="btn btn-secondary border-0 btn-sm resetButton" data-toggle="tooltip" data-title="Reset chart settings and remove indicators">
-                                        <i class="ac ac-refresh" aria-hidden="true"></i>
-                                        <span>&nbsp;Reset Settings</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+    <header>
+      <h3 class="text-center">
+        Stock analysis tool demo with real-time data by EODHistoricalData
+      </h3>
+      <div id="settingsPanel" class="tab-content">
+        <div id="empty" class="tab-pane active"></div>
+        <div id="indicator-panel" role="tabpanel" class="tab-pane">
+          <div id="indicatorNavPanel" class="container-fluid">
+            <div class="row flex-nowrap justify-content-between">
+              <div class="col-auto">
+                <div class="row">
+                  <div class="col-auto">
+                    <div class="input-group input-group-sm flex-nowrap">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Series Type:</span>
+                      </div>
+                      <select title="Series Type" id="seriesTypeSelect" class="select selectpicker show-tick input-group-append"
+                        data-tooltip-title="Select chart series type" data-focus-off="true">
+                        <!--series constructors-->
+                        <option value="candlestick" selected>Candlestick Chart</option>
+                        <option value="ohlc">OHLC Chart</option>
+                        <option value="rangeArea">Range Area Chart</option>
+                        <option value="rangeColumn">Range Column Chart</option>
+                        <option value="rangeSplineArea">Range Spline Area Chart</option>
+                        <option value="rangeStepArea">Range Step Area Chart</option>
+                        <!---->
+                      </select>
                     </div>
-                </div>
-                <div id="annotation-panel" role="tabpanel" class="tab-pane">
-                    <div class="container-fluid">
-                        <div class="row flex-nowrap justify-content-between">
-                            <div class="col-auto">
-                                <div class="row">
-                                    <div class="col-auto">
-                                        <div id="drawing" class="tools input-group input-group-sm flex-nowrap">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text">Drawing Tools:</span>
-                                            </div>
-                                            <select class="select choose-drawing-tools selectpicker input-group-append"
-                                                data-annotation-type="drawing" title="Select drawing tool" data-tooltip-title="Select drawing tool" data-focus-off="true">
-                                                <option data-icon="ac ac-line" value="line" aria-label="Center Align">
-                                                    &emsp;Line Segment
-                                                    </button>
-                                                <option data-icon="ac ac-horizontal-line" value="horizontal-line"
-                                                    aria-label="Center Align">
-                                                    &emsp;Horizontal Line
-                                                </option>
-                                                <option data-icon="ac ac-vertical-line" value="vertical-line" aria-label="Center Align">
-                                                    &emsp;Vertical Line
-                                                </option>
-                                                <option data-icon="ac ac-infinite-line" value="infinite-line" aria-label="Center Align">
-                                                    &emsp;Infinite Line
-                                                </option>
-                                                <option data-icon="ac ac-ray" value="ray" aria-label="Center Align">
-                                                    &emsp;Ray
-                                                </option>
-                                                <option data-icon="ac ac-triangle" value="triangle" aria-label="Center Align">
-                                                    &emsp;Triangle
-                                                </option>
-                                                <option data-icon="ac ac-rectangle" value="rectangle" aria-label="Center Align">
-                                                    &emsp;Rectangle
-                                                </option>
-                                                <option data-icon="ac ac-ellipse" value="ellipse" type="button" class="btn btn-default"
-                                                    aria-label="Center Align">
-                                                    &emsp;Ellipse
-                                                </option>
-                                                <option data-icon="ac ac-trend-channel" value="trend-channel" aria-label="Center Align">
-                                                    &emsp;Trend Channel
-                                                </option>
-                                                <option data-icon="ac ac-andrews-pitchfork" value="andrews-pitchfork"
-                                                    aria-label="Center Align">
-                                                    &emsp;Andrew's Pitchfork
-                                                </option>
-                                                <option data-icon="ac ac-fibonacci-fan" value="fibonacci-fan" aria-label="Center Align">
-                                                    &emsp;Fibonacci Fan
-                                                </option>
-                                                <option data-icon="ac ac-fibonacci-arc" value="fibonacci-arc" aria-label="Center Align">
-                                                    &emsp;Fibonacci Arc
-                                                </option>
-                                                <option data-icon="ac ac-fibonacci-retracement" value="fibonacci-retracement"
-                                                    aria-label="Center Align">
-                                                    &emsp;Fibonacci Retracement
-                                                </option>
-                                                <option data-icon="ac ac-fibonacci-timezones" value="fibonacci-timezones"
-                                                    aria-label="Center Align">
-                                                    &emsp;Fibonacci Time Zones
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <div id="marker" class="tools input-group input-group-sm flex-nowrap">
-                                            <select class="selectpicker show-menu-arrow select choose-marker input-group-prepend"
-                                                id="select-marker-type" title="Markers" data-tooltip-title="Select marker type" data-width="fit"
-                                                data-max-options="1" data-annotation-type="marker"
-                                                data-focus-off="true">
-                                                <option data-icon="ac ac-arrow-up-square" value="arrowUp"
-                                                    data-marker-anchor="center-top">Up
-                                                    Arrow
-                                                </option>
-                                                <option data-icon="ac ac-arrow-down-square" value="arrow-down"
-                                                    data-marker-anchor="center-bottom">Down
-                                                    Arrow
-                                                </option>
-                                                <option data-icon="ac ac-arrow-left-square" value="arrow-left"
-                                                    data-marker-anchor="left-center">Left
-                                                    Arrow
-                                                </option>
-                                                <option data-icon="ac ac-arrow-right-square" value="arrow-right"
-                                                    data-marker-anchor="right-center">Right
-                                                    Arrow
-                                                </option>
-                                                <option data-icon="ac ac-head-arrow" value="arrowHead" data-marker-anchor="right-center">Head
-                                                    Arrow
-                                                </option>
-                                                <option data-icon="ac ac-cross" value="cross" data-marker-anchor="center">Cross
-                                                </option>
-                                                <option data-icon="ac ac-diagonal-cros" value="diagonal-cross"
-                                                    data-marker-anchor="center">Diagonal
-                                                    cross
-                                                </option>
-                                                <option data-icon="ac ac-diamond" value="diamond" data-marker-anchor="center">Diamond
-                                                </option>
-                                                <option data-icon="ac ac-pentagon" value="pentagon" data-marker-anchor="center">Pentagon
-                                                </option>
-                                                <option data-icon="ac ac-square" value="square" data-marker-anchor="center">Square
-                                                </option>
-                                                <option data-icon="ac ac-star-1" value="star10" data-marker-anchor="center">Star
-                                                    1
-                                                </option>
-                                                <option data-icon="ac ac-star-2" value="star4" data-marker-anchor="center">Star
-                                                    2
-                                                </option>
-                                                <option data-icon="ac ac-star-3" value="star5" data-marker-anchor="center">Star
-                                                    3
-                                                </option>
-                                                <option data-icon="ac ac-star-4" value="star6" data-marker-anchor="center">Star
-                                                    4
-                                                </option>
-                                                <option data-icon="ac ac-star-5" value="star7" data-marker-anchor="center">Star
-                                                    5
-                                                </option>
-                                                <option data-icon="ac ac-trapezium" value="trapezium" data-marker-anchor="center">Trapezium
-                                                </option>
-                                                <option data-icon="ac ac-triangle-up" value="triangle-up"
-                                                    data-marker-anchor="center-top">Triangle
-                                                    Up
-                                                </option>
-                                                <option data-icon="ac ac-triangle-down" value="triangle-down"
-                                                    data-marker-anchor="center-bottom">Triangle
-                                                    Down
-                                                </option>
-                                                <option data-icon="ac ac-triangle-left" value="triangle-left"
-                                                    data-marker-anchor="left-center">Triangle
-                                                    Left
-                                                </option>
-                                                <option data-icon="ac ac-triangle-right" value="triangle-right"
-                                                    data-marker-anchor="right-center">Triangle
-                                                    Right
-                                                </option>
-                                            </select>
-                                            <select class="selectpicker show-menu-arrow select select-marker-size input-group-append"
-                                                id="select-marker-size" data-tooltip-title="Marker size" data-width="fit"
-                                                data-max-options="1"
-                                                data-focus-off="true">
-                                                <option data-settings="width" value="5">5 px</option>
-                                                <option data-settings="width" value="10">10 px</option>
-                                                <option data-settings="width" value="15">15 px</option>
-                                                <option data-settings="width" value="20" selected>20 px</option>
-                                                <option data-settings="width" value="25">25 px</option>
-                                            </select>
-                                        </div>
-                                        <div id="label" class="tools input-group input-group-sm flex-nowrap">
-                                            <div class="row flex-nowrap">
-                                                <div class="col-auto">
-                                                    <div class="btn-group btn-group-sm auto-width">
-                                                        <button id="newLabel" value="label" type="button" class="btn btn-secondary"
-                                                            aria-label="Center Align" data-toggle="tooltip" data-title="Create new label"
-                                                            data-annotation-type="label">
-                                                            <i class="ac ac-font"></i>
-                                                            <span>&nbsp;Add Label</span>
-                                                        </button>
-                                                        <button type="button" class="btn btn-secondary" id="annotation-label-autosize"
-                                                            aria-label="Auto-resize" data-toggle="tooltip" data-title="Auto-resize label">
-                                                            <i class="ac ac-enlarge" aria-hidden="true"></i>
-                                                            <span>&nbsp;Auto-resize</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <div class="input-group input-group-sm">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text">Text Settings:</span>
-                                                        </div>
-                                                        <div class="dropdown colorpickerplus-dropdown stroke input-group-prepend">
-                                                            <button type="button" id="fontColor" class="btn btn-secondary border-0 color-picker"
-                                                                data-color="fontColor" data-placement="bottom" data-title="Сhoose font color"
-                                                                data-toggle="dropdown">
-                                                                <span class="color-fill-icon dropdown-color-fill-icon"
-                                                                    style="background-color:#333;"></span>
-                                                            </button>
-                                                            <ul class="dropdown-menu right" aria-labelledby="fontColor">
-                                                                <li class="disabled">
-                                                                    <div class="colorpickerplus-container"></div>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-    
-                                                        <select class="selectpicker select select-font-size input-group-append"
-                                                            id="select-font-size" data-tooltip-title="Font size" data-width="fit"
-                                                            data-focus-off="true">
-                                                            <option data-settings="width" value="5">5 px</option>
-                                                            <option data-settings="width" value="10">10 px</option>
-                                                            <option data-settings="width" value="15">15 px</option>
-                                                            <option data-settings="width" value="20" selected>20 px</option>
-                                                            <option data-settings="width" value="25">25 px</option>
-                                                        </select>
-    
-                                                        <select class="select selectpicker input-group-append" id="select-font-style"
-                                                            title="Font settings" data-tooltip-title="Select font style, decoration and position" data-width="fit" multiple>
-                                                            <optgroup label="Font style" data-max-options="2"
-                                                            data-focus-off="true">
-                                                                <option data-icon="ac-italic" data-label-method="fontStyle"
-                                                                    value="italic">Italic
-                                                                </option>
-                                                                <option data-icon="ac-bold" data-label-method="fontWeight"
-                                                                    value="bold">Bold</option>
-                                                            </optgroup>
-                                                            <optgroup label="Font decoration" data-max-options="1"
-                                                                data-label-method="fontDecoration">
-                                                                <option data-icon="ac-strikethrough" value="line-through">Line-through</option>
-                                                                <option data-icon="ac-overline" value="overline">Overline</option>
-                                                                <option data-icon="ac-underline" value="underline">Underline</option>
-                                                            </optgroup>
-                                                            <optgroup label="Horizontal align" data-max-options="1"
-                                                                data-label-method="hAlign">
-                                                                <option data-icon="ac-align-center" value="center">Center</option>
-                                                                <option data-icon="ac-align-left" value="left">Left</option>
-                                                                <option data-icon="ac-align-right" value="right">Right</option>
-                                                                <option data-icon="ac-position-left" value="start">Start</option>
-                                                                <option data-icon="ac-position-right" value="end">End</option>
-                                                            </optgroup>
-                                                            <optgroup label="Anchor" data-max-options="1" data-label-method="anchor">
-                                                                <option data-icon="ac-anchor-center-bottom" value="center-bottom">Center
-                                                                    bottom</option>
-                                                                <option data-icon="ac-anchor-center-top" value="center-top">Center
-                                                                    top</option>
-                                                                <option data-icon="ac-anchor-left-bottom" value="left-bottom">Left
-                                                                    bottom</option>
-                                                                <option data-icon="ac-anchor-left-center" value="left-center">Left
-                                                                    center</option>
-                                                                <option data-icon="ac-anchor-left-top" value="left-top">Left
-                                                                    top</option>
-                                                                <option data-icon="ac-anchor-right-bottom" value="right-bottom">Right
-                                                                    bottom</option>
-                                                                <option data-icon="ac-anchor-right-center" value="right-center">Right
-                                                                    center</option>
-                                                                <option data-icon="ac-anchor-right-top" value="right-top">Right
-                                                                    top</option>
-                                                                <option data-icon="ac-anchor-center" value="center">Center</option>
-                                                            </optgroup>
-                                                            <optgroup label="Vertical align" data-max-options="1"
-                                                                data-label-method="vAlign">
-                                                                <option data-icon="ac-position-top" value="top">Top</option>
-                                                                <option data-icon="ac-position-center2" value="middle">Middle</option>
-                                                                <option data-icon="ac-position-bottom" value="bottom">Bottom</option>
-                                                            </optgroup>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <div class="input-group input-group-sm flex-nowrap">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text">Stroke settings:</span>
-                                            </div>
-                                            <div class="dropdown colorpickerplus-dropdown stroke input-group-prepend">
-                                                <button type="button" id="stroke" class="btn btn-secondary border-0 color-picker"
-                                                    data-color="stroke" data-placement="bottom" data-title="Сhoose drawing stroke color"
-                                                    data-toggle="dropdown">
-                                                    <span class="color-fill-icon dropdown-color-fill-icon" style="background-color:#27A858;"></span>
-                                                </button>
-                                                <ul class="dropdown-menu right" aria-labelledby="stroke">
-                                                    <li class="disabled">
-                                                        <div class="colorpickerplus-container"></div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <select class="select strokeSettings size selectpicker input-group-append"
-                                                data-width="fit" data-tooltip-title="Stroke size" data-focus-off="true">
-                                                <option value="1" selected>1px</option>
-                                                <option value="2">2px</option>
-                                                <option value="3">3px</option>
-                                                <option value="4">4px</option>
-                                                <option value="5">5px</option>
-                                            </select>
-                                            <select class="select strokeSettings dash selectpicker input-group-append"
-                                                data-width="fit" data-tooltip-title="Stroke type" data-focus-off="true">
-                                                <option value="solid" data-icon="ac ac-h-line-thickness-1"></option>
-                                                <option value="dotted" data-icon="ac ac-h-line-dotted-1"></option>
-                                                <option value="dashed" data-icon="ac ac-h-line-dashed-1"></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <div class="input-group input-group-sm flex-nowrap">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text">Fill Color:</span>
-                                            </div>
-                                            <div class="dropdown colorpickerplus-dropdown input-group-append">
-                                                <button type="button" id="fill" class="btn btn-secondary border-0 color-picker dropdown-toggle"
-                                                    data-color="fill" data-toggle="dropdown" data-placement="bottom" data-title="Сhoose drawing fill color">
-                                                    <span class="color-fill-icon dropdown-color-fill-icon" style="background-color:#27A858;"></span>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="fill">
-                                                    <li class="disabled">
-                                                        <div class="colorpickerplus-container"></div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-    
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="btn-group auto-width">
-                                    <button data-action-type="saveAppState" type="button" class="btn btn-sm btn-secondary border-0 disabled"
-                                        aria-label="Center Align" data-toggle="tooltip" data-title="Save chart settings and indicators">
-                                        <i class="ac ac-save" aria-hidden="true"></i>
-                                        <span>&nbsp;Save</span>
-                                    </button>
-                                    <button data-action-type="removeSelectedAnnotation" type="button" class="btn btn-sm btn-secondary border-0 disabled"
-                                        aria-label="Center Align" data-toggle="tooltip" data-title="Delete selected drawing / Cmd+Backspace / DEL">
-                                        <i class="ac ac-remove-thin" aria-hidden="true"></i>
-                                        <span>&nbsp;Delete</span>
-                                    </button>
-                                    <button data-action-type="removeAllAnnotations" type="button" class="btn btn-sm btn-secondary border-0"
-                                        aria-label="Center Align" data-toggle="tooltip" data-title="Delete all drawings">
-                                        <i class="ac ac-clear" aria-hidden="true"></i>
-                                        <span>&nbsp;Clear</span>
-                                    </button>
-                                    <button class="btn btn-secondary border-0 btn-sm resetButton" data-toggle="tooltip" data-title="Reset chart settings and remove indicators">
-                                        <i class="ac ac-refresh" aria-hidden="true"></i>
-                                        <span>&nbsp;Reset</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
+                  </div>
+                  <div class="col-auto">
+                    <div class="input-group input-group-sm flex-nowrap">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Technical Indicators:</span>
+                      </div>
+                      <select class="select selectpicker show-tick input-group-append" multiple data-width="250" id="indicatorTypeSelect"
+                        title="Add Indicators" data-tooltip-title="Add indicators" data-focus-off="true">
+                      </select>
                     </div>
+                  </div>
+                  <div class="col-auto">
+                    <div class="input-group input-group-sm flex-nowrap">
+                      <div class="input-group-prepend"><span class="input-group-text">Chart Theme:</span></div>
+                      <select data-tooltip-title="Select chart theme" id="themeSelect" class="select selectpicker show-tick input-group-append"
+                        data-width="auto" data-focus-off="true">
+                        <option value="coffee">Coffee</option>
+                        <option value="default">Default</option>
+                        <option value="darkBlue">Dark Blue</option>
+                        <option value="lightBlue">Light Blue</option>
+                        <option value="darkEarth" selected>Dark Earth</option>
+                        <option value="lightEarth">Light Earth</option>
+                        <option value="darkGlamour">Dark Glamour</option>
+                        <option value="darkTurquoise">Dark Turquoise</option>
+                        <option value="lightGlamour">Light Glamour</option>
+                        <option value="darkProvence">Dark Provence</option>
+                        <option value="lightProvence">Light Provence</option>
+                        <option value="lightTurquoise">Light Turquoise</option>
+                        <option value="monochrome">Monochrome</option>
+                        <option value="morning">Morning</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="sea">Sea</option>
+                        <option value="wines">Wines</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
+              </div>
+              <div class="col-auto">
+                <div class="btn-group auto-width">
+                  <button data-action-type="saveAppState" type="button" class="btn btn-sm btn-secondary border-0 disabled" aria-label="Center Align" data-toggle="tooltip" data-title="Save chart settings and indicators">
+                    <i class="ac ac-save" aria-hidden="true"></i>
+                    <span>&nbsp;Save</span>
+                  </button>
+                  <button class="btn btn-secondary border-0 btn-sm resetButton" data-toggle="tooltip" data-title="Reset chart settings and remove indicators">
+                    <i class="ac ac-refresh" aria-hidden="true"></i>
+                    <span>&nbsp;Reset Settings</span>
+                  </button>
+                </div>
+              </div>
             </div>
-        </header>
-
-        
-
-
-        <div class="toolbar" id="drawingToolsPanel" role="tablist">
-            <ul class="nav nav-pills flex-column">
-                <li role="presentation">
-                    <a class="btn btn-sm btn-secondary btn-block border-0" href="#empty"
-                        aria-controls="empty" role="tab" data-toggle="tab" data-title="Cursor" data-action-type="unSelectedAnnotation">
-                        &nbsp;<i class="ac ac-mouse-pointer" aria-hidden="true"></i>&nbsp;
-                    </a>
-                </li>
-                <li role="presentation">
-                    <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel"
-                        role="tab" data-toggle="tab" data-toolbar-type="drawing" data-title="Drawing tools" data-action-type="unSelectedAnnotation">
-                        <i class="ac ac-andrews-pitchfork" aria-hidden="true"></i>
-                    </a>
-                </li>
-                <li role="presentation">
-                    <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel"
-                        role="tab" data-toggle="tab" data-toolbar-type="marker" data-title="Markers" data-action-type="unSelectedAnnotation">
-                        <i class="ac ac-star-5" aria-hidden="true"></i>
-                    </a>
-                </li>
-                <li role="presentation">
-                    <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel"
-                        role="tab" data-toggle="tab" data-toolbar-type="label" data-title="Labels" data-action-type="unSelectedAnnotation">
-                        <i class="ac ac-font"></i>
-                    </a>
-                </li>
-                <li role="presentation" class="active">
-                    <a class="btn btn-sm btn-secondary border-0 btn-block" href="#indicator-panel" aria-controls="indicator-panel"
-                        role="tab" data-toggle="tab" data-title="Settings" data-action-type="unSelectedAnnotation">
-                        <i class="ac ac-cog"></i>
-                    </a>
-                </li>
-            </ul>
-
-            <div class="credits">
-                <a class="logo" href="https://anychart.com" data-toggle="tooltip" data-placement="top" data-title="Powered by AnyChart">
-                    <span class="chart-row">
-                        <span class="chart-col green"></span>
-                        <span class="chart-col orange"></span>
-                        <span class="chart-col red"></span>
-                    </span>
-                </a>
-            </div>
+          </div>
         </div>
-        <div id="chart-container"></div>
-
-        <!-- anychart loader -->
-        <div id="loader" class="anychart-loader">
-            <div class="rotating-cover">
-                <div class="rotating-plane">
-                    <div class="chart-row">
-                        <span class="chart-col green"></span>
-                        <span class="chart-col orange"></span>
-                        <span class="chart-col red"></span>
+        <div id="annotation-panel" role="tabpanel" class="tab-pane">
+          <div class="container-fluid">
+            <div class="row flex-nowrap justify-content-between">
+              <div class="col-auto">
+                <div class="row">
+                  <div class="col-auto">
+                    <div id="drawing" class="tools input-group input-group-sm flex-nowrap">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Drawing Tools:</span>
+                      </div>
+                      <select class="select choose-drawing-tools selectpicker input-group-append" data-annotation-type="drawing"
+                        title="Select drawing tool" data-tooltip-title="Select drawing tool" data-focus-off="true">
+                        <option data-icon="ac ac-line" value="line" aria-label="Center Align">&emsp;Line Segment</option>
+                        <option data-icon="ac ac-horizontal-line" value="horizontal-line" aria-label="Center Align">&emsp;Horizontal Line</option>
+                        <option data-icon="ac ac-vertical-line" value="vertical-line" aria-label="Center Align">&emsp;Vertical Line</option>
+                        <option data-icon="ac ac-infinite-line" value="infinite-line" aria-label="Center Align">&emsp;Infinite Line</option>
+                        <option data-icon="ac ac-ray" value="ray" aria-label="Center Align">&emsp;Ray</option>
+                        <option data-icon="ac ac-triangle" value="triangle" aria-label="Center Align">&emsp;Triangle</option>
+                        <option data-icon="ac ac-rectangle" value="rectangle" aria-label="Center Align">&emsp;Rectangle</option>
+                        <option data-icon="ac ac-ellipse" value="ellipse" type="button" class="btn btn-default" aria-label="Center Align">&emsp;Ellipse</option>
+                        <option data-icon="ac ac-trend-channel" value="trend-channel" aria-label="Center Align">&emsp;Trend Channel</option>
+                        <option data-icon="ac ac-andrews-pitchfork" value="andrews-pitchfork" aria-label="Center Align">&emsp;Andrew's Pitchfork</option>
+                        <option data-icon="ac ac-fibonacci-fan" value="fibonacci-fan" aria-label="Center Align">&emsp;Fibonacci Fan</option>
+                        <option data-icon="ac ac-fibonacci-arc" value="fibonacci-arc" aria-label="Center Align">&emsp;Fibonacci Arc</option>
+                        <option data-icon="ac ac-fibonacci-retracement" value="fibonacci-retracement" aria-label="Center Align">&emsp;Fibonacci Retracement</option>
+                        <option data-icon="ac ac-fibonacci-timezones" value="fibonacci-timezones" aria-label="Center Align">&emsp;Fibonacci Time Zones</option>
+                      </select>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- modal alert -->
-        <div class="modal fade" id="warning" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Attention</h4>
+                    <div id="marker" class="tools input-group input-group-sm flex-nowrap">
+                      <select class="selectpicker show-menu-arrow select choose-marker input-group-prepend" id="select-marker-type"
+                        title="Markers" data-tooltip-title="Select marker type" data-width="fit" data-max-options="1"
+                        data-annotation-type="marker" data-focus-off="true">
+                        <option data-icon="ac ac-arrow-up-square" value="arrowUp" data-marker-anchor="center-top">Up Arrow</option>
+                        <option data-icon="ac ac-arrow-down-square" value="arrow-down" data-marker-anchor="center-bottom">Down Arrow</option>
+                        <option data-icon="ac ac-arrow-left-square" value="arrow-left" data-marker-anchor="left-center">Left Arrow</option>
+                        <option data-icon="ac ac-arrow-right-square" value="arrow-right" data-marker-anchor="right-center">Right Arrow</option>
+                        <option data-icon="ac ac-head-arrow" value="arrowHead" data-marker-anchor="right-center">Head Arrow</option>
+                        <option data-icon="ac ac-cross" value="cross" data-marker-anchor="center">Cross</option>
+                        <option data-icon="ac ac-diagonal-cros" value="diagonal-cross" data-marker-anchor="center">Diagonal cross</option>
+                        <option data-icon="ac ac-diamond" value="diamond" data-marker-anchor="center">Diamond</option>
+                        <option data-icon="ac ac-pentagon" value="pentagon" data-marker-anchor="center">Pentagon</option>
+                        <option data-icon="ac ac-square" value="square" data-marker-anchor="center">Square</option>
+                        <option data-icon="ac ac-star-1" value="star10" data-marker-anchor="center">Star 1</option>
+                        <option data-icon="ac ac-star-2" value="star4" data-marker-anchor="center">Star 2</option>
+                        <option data-icon="ac ac-star-3" value="star5" data-marker-anchor="center">Star 3</option>
+                        <option data-icon="ac ac-star-4" value="star6" data-marker-anchor="center">Star 4</option>
+                        <option data-icon="ac ac-star-5" value="star7" data-marker-anchor="center">Star 5</option>
+                        <option data-icon="ac ac-trapezium" value="trapezium" data-marker-anchor="center">Trapezium</option>
+                        <option data-icon="ac ac-triangle-up" value="triangle-up" data-marker-anchor="center-top">Triangle Up</option>
+                        <option data-icon="ac ac-triangle-down" value="triangle-down" data-marker-anchor="center-bottom">Triangle Down</option>
+                        <option data-icon="ac ac-triangle-left" value="triangle-left" data-marker-anchor="left-center">Triangle Left</option>
+                        <option data-icon="ac ac-triangle-right" value="triangle-right" data-marker-anchor="right-center">Triangle Right</option>
+                      </select>
+                      <select class="selectpicker show-menu-arrow select select-marker-size input-group-append" id="select-marker-size"
+                        data-tooltip-title="Marker size" data-width="fit" data-max-options="1" data-focus-off="true">
+                        <option data-settings="width" value="5">5 px</option>
+                        <option data-settings="width" value="10">10 px</option>
+                        <option data-settings="width" value="15">15 px</option>
+                        <option data-settings="width" value="20" selected>20 px</option>
+                        <option data-settings="width" value="25">25 px</option>
+                      </select>
                     </div>
-                    <div class="modal-body">
-                        <div class="alert alert-danger">
-                            <strong>XHR Fail: </strong> This Sample will properly work only if
-                            upload it to a server and access via http or https. Please see
-                            <a href="https://github.com/anychart-solutions/technical-indicators" target="_blank">https://github.com/anychart-solutions/technical-indicators</a>
-                            to learn more.
+                    <div id="label" class="tools input-group input-group-sm flex-nowrap">
+                      <div class="row flex-nowrap">
+                        <div class="col-auto">
+                          <div class="btn-group btn-group-sm auto-width">
+                            <button id="newLabel" value="label" type="button" class="btn btn-secondary" aria-label="Center Align" data-toggle="tooltip" data-title="Create new label" data-annotation-type="label">
+                              <i class="ac ac-font" aria-hidden="true"></i>
+                              <span>&nbsp;Add Label</span>
+                            </button>
+                            <textarea id="annotation-label"></textarea>
+                            <button type="button" class="btn btn-secondary" id="annotation-label-autosize" aria-label="Auto-resize" data-toggle="tooltip" data-title="Auto-resize label">
+                              <i class="ac ac-enlarge" aria-hidden="true"></i>
+                              <span>&nbsp;Auto-resize</span>
+                            </button>
+                          </div>
                         </div>
+                        <div class="col-auto">
+                          <div class="input-group input-group-sm">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text">Text Settings:</span>
+                            </div>
+                            <div class="dropdown colorpickerplus-dropdown stroke input-group-prepend">
+                              <button type="button" id="fontColor" class="btn btn-secondary border-0 color-picker" data-color="fontColor" data-placement="bottom" data-title="Сhoose font color" data-toggle="dropdown">
+                                <span class="color-fill-icon dropdown-color-fill-icon" style="background-color:#333;"></span>
+                              </button>
+                              <ul class="dropdown-menu right" aria-labelledby="fontColor">
+                                <li class="disabled">
+                                  <div class="colorpickerplus-container"></div>
+                                </li>
+                              </ul>
+                            </div>
+
+                            <select class="selectpicker select select-font-size input-group-append" id="select-font-size"
+                              data-tooltip-title="Font size" data-width="fit" data-focus-off="true">
+                              <option data-settings="width" value="5">5 px</option>
+                              <option data-settings="width" value="10">10 px</option>
+                              <option data-settings="width" value="15">15 px</option>
+                              <option data-settings="width" value="20" selected>20 px</option>
+                              <option data-settings="width" value="25">25 px</option>
+                            </select>
+
+                            <select class="select selectpicker input-group-append" id="select-font-style" title="Font settings"
+                              data-tooltip-title="Select font style, decoration and position" data-width="fit" multiple  data-focus-off="true">
+                              <optgroup label="Font style">
+                                <option data-icon="ac-italic" data-label-method="fontStyle" value="italic">Italic</option>
+                                <option data-icon="ac-bold" data-label-method="fontWeight" value="bold">Bold</option>
+                              </optgroup>
+                              <optgroup label="Font decoration" data-max-options="1" data-label-method="fontDecoration">
+                                <option data-icon="ac-strikethrough" value="line-through">Line-through</option>
+                                <option data-icon="ac-overline" value="overline">Overline</option>
+                                <option data-icon="ac-underline" value="underline">Underline</option>
+                              </optgroup>
+                              <optgroup label="Horizontal align" data-max-options="1" data-label-method="hAlign">
+                                <option data-icon="ac-align-center" value="center">Center</option>
+                                <option data-icon="ac-align-left" value="left">Left</option>
+                                <option data-icon="ac-align-right" value="right">Right</option>
+                                <option data-icon="ac-position-left" value="start">Start</option>
+                                <option data-icon="ac-position-right" value="end">End</option>
+                              </optgroup>
+                              <optgroup label="Anchor" data-max-options="1" data-label-method="anchor">
+                                <option data-icon="ac-anchor-center-bottom" value="center-bottom">Center bottom</option>
+                                <option data-icon="ac-anchor-center-top" value="center-top">Center top</option>
+                                <option data-icon="ac-anchor-left-bottom" value="left-bottom">Left bottom</option>
+                                <option data-icon="ac-anchor-left-center" value="left-center">Left center</option>
+                                <option data-icon="ac-anchor-left-top" value="left-top">Left top</option>
+                                <option data-icon="ac-anchor-right-bottom" value="right-bottom">Right bottom</option>
+                                <option data-icon="ac-anchor-right-center" value="right-center">Right center</option>
+                                <option data-icon="ac-anchor-right-top" value="right-top">Right top</option>
+                                <option data-icon="ac-anchor-center" value="center">Center</option>
+                              </optgroup>
+                              <optgroup label="Vertical align" data-max-options="1" data-label-method="vAlign">
+                                <option data-icon="ac-position-top" value="top">Top</option>
+                                <option data-icon="ac-position-center2" value="middle">Middle</option>
+                                <option data-icon="ac-position-bottom" value="bottom">Bottom</option>
+                              </optgroup>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+                  </div>
+                  <div class="col-auto">
+                    <div class="input-group input-group-sm flex-nowrap">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Stroke settings:</span>
+                      </div>
+                      <div class="dropdown colorpickerplus-dropdown stroke input-group-prepend">
+                        <button type="button" id="stroke" class="btn btn-secondary border-0 color-picker" data-color="stroke" data-placement="bottom" data-title="Сhoose drawing stroke color" data-toggle="dropdown">
+                          <span class="color-fill-icon dropdown-color-fill-icon" style="background-color:#27A858;"></span>
+                        </button>
+                        <ul class="dropdown-menu right" aria-labelledby="stroke">
+                          <li class="disabled">
+                            <div class="colorpickerplus-container"></div>
+                          </li>
+                        </ul>
+                      </div>
+                      <select class="select strokeSettings size selectpicker input-group-append" data-width="fit" data-tooltip-title="Stroke size" data-focus-off="true">
+                        <option value="1" selected>1px</option>
+                        <option value="2">2px</option>
+                        <option value="3">3px</option>
+                        <option value="4">4px</option>
+                        <option value="5">5px</option>
+                      </select>
+                      <select class="select strokeSettings dash selectpicker input-group-append" data-width="fit" data-tooltip-title="Stroke type" data-focus-off="true">
+                        <option value="solid" data-icon="ac ac-h-line-thickness-1"></option>
+                        <option value="dotted" data-icon="ac ac-h-line-dotted-1"></option>
+                        <option value="dashed" data-icon="ac ac-h-line-dashed-1"></option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <div class="input-group input-group-sm flex-nowrap">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Fill Color:</span>
+                      </div>
+                      <div class="dropdown colorpickerplus-dropdown input-group-append">
+                        <button type="button" id="fill" class="btn btn-secondary border-0 color-picker dropdown-toggle" data-color="fill" data-toggle="dropdown" data-placement="bottom" data-title="Сhoose drawing fill color">
+                          <span class="color-fill-icon dropdown-color-fill-icon" style="background-color:#27A858;"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="fill">
+                          <li class="disabled">
+                            <div class="colorpickerplus-container"></div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </div>
+              <div class="col-auto">
+                <div class="btn-group auto-width">
+                  <button data-action-type="saveAppState" type="button" class="btn btn-sm btn-secondary border-0 disabled" aria-label="Center Align" data-toggle="tooltip" data-title="Save chart settings and indicators">
+                    <i class="ac ac-save" aria-hidden="true"></i>
+                    <span>&nbsp;Save</span>
+                  </button>
+                  <button data-action-type="removeSelectedAnnotation" type="button" class="btn btn-sm btn-secondary border-0 disabled" aria-label="Center Align" data-toggle="tooltip" data-title="Delete selected drawing / Cmd+Backspace / DEL">
+                    <i class="ac ac-remove-thin" aria-hidden="true"></i>
+                    <span>&nbsp;Delete</span>
+                  </button>
+                  <button data-action-type="removeAllAnnotations" type="button" class="btn btn-sm btn-secondary border-0" aria-label="Center Align" data-toggle="tooltip" data-title="Delete all drawings">
+                    <i class="ac ac-clear" aria-hidden="true"></i>
+                    <span>&nbsp;Clear</span>
+                  </button>
+                  <button class="btn btn-secondary border-0 btn-sm resetButton" data-toggle="tooltip" data-title="Reset chart settings and remove indicators">
+                    <i class="ac ac-refresh" aria-hidden="true"></i>
+                    <span>&nbsp;Reset</span>
+                  </button>
+                </div>
+              </div>
             </div>
+            <div class="clearfix"></div>
+          </div>
         </div>
+      </div>
+    </header>
+    <div class="toolbar" id="drawingToolsPanel" role="tablist">
+      <ul class="nav nav-pills flex-column">
+        <li role="presentation">
+          <a class="btn btn-sm btn-secondary btn-block border-0" href="#empty" aria-controls="empty" role="tab" data-toggle="tab" data-title="Cursor" data-action-type="unSelectedAnnotation">
+            <i class="ac ac-mouse-pointer" aria-hidden="true"></i>
+          </a>
+        </li>
+        <li role="presentation">
+          <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel" role="tab" data-toggle="tab" data-toolbar-type="drawing" data-title="Drawing tools" data-action-type="unSelectedAnnotation">
+            <i class="ac ac-andrews-pitchfork" aria-hidden="true"></i>
+          </a>
+        </li>
+        <li role="presentation">
+          <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel" role="tab" data-toggle="tab" data-toolbar-type="marker" data-title="Markers" data-action-type="unSelectedAnnotation">
+            <i class="ac ac-star-5" aria-hidden="true"></i>
+          </a>
+        </li>
+        <li role="presentation">
+          <a class="btn btn-sm btn-secondary border-0 btn-block" href="#annotation-panel" aria-controls="annotation-panel" role="tab" data-toggle="tab" data-toolbar-type="label" data-title="Labels" data-action-type="unSelectedAnnotation">
+            <i class="ac ac-font" aria-hidden="true"></i>
+          </a>
+        </li>
+        <li role="presentation" class="active">
+          <a class="btn btn-sm btn-secondary border-0 btn-block" href="#indicator-panel" aria-controls="indicator-panel" role="tab" data-toggle="tab" data-title="Settings" data-action-type="unSelectedAnnotation">
+            <i class="ac ac-cog" aria-hidden="true"></i>
+          </a>
+        </li>
+      </ul>
+
+      <div class="credits">
+        <a class="logo" href="https://anychart.com" data-toggle="tooltip" data-placement="top" data-title="Powered by AnyChart">
+          <span class="chart-row">
+            <span class="chart-col green"></span>
+            <span class="chart-col orange"></span>
+            <span class="chart-col red"></span>
+          </span>
+        </a>
+      </div>
     </div>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
-        crossorigin="anonymous"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/vendor/bootstrap-colorpicker.min.js"></script>
-    <script src="js/vendor/bootstrap-colorpicker-plus.js"></script>
-    <!-- Latest compiled and minified JavaScript Bootstrap Select -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+    <div id="chart-container"></div>
 
-    <script src="https://cdn.anychart.com/releases/v8/js/anychart-core.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/js/anychart-stock.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/js/anychart-exports.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/js/anychart-ui.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/js/anychart-annotations.min.js"></script>
+    <!-- anychart loader -->
+    <div id="loader" class="anychart-loader">
+      <div class="rotating-cover">
+        <div class="rotating-plane">
+          <div class="chart-row">
+            <span class="chart-col green"></span>
+            <span class="chart-col orange"></span>
+            <span class="chart-col red"></span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <!-- AnyChart Themes -->
-    <script src="https://cdn.anychart.com/releases/v8/themes/coffee.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/dark_blue.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/dark_earth.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/dark_glamour.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/dark_provence.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/dark_turquoise.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/light_blue.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/light_earth.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/light_glamour.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/light_provence.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/light_turquoise.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/monochrome.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/morning.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/pastel.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/sea.min.js"></script>
-    <script src="https://cdn.anychart.com/releases/v8/themes/wines.min.js"></script>
-    <!---->
+    <!-- modal alert -->
+    <div class="modal fade" id="warning" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Attention</h4>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger">
+              <strong>XHR Fail: </strong> This Sample will properly work only if upload it to a server and access via http or https. Please see <a href="https://github.com/anychart-solutions/technical-indicators" target="_blank">https://github.com/anychart-solutions/technical-indicators</a> to learn more.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/vendor/bootstrap-colorpicker.min.js"></script>
+  <script src="js/vendor/bootstrap-colorpicker-plus.js"></script>
+  <!-- Latest compiled and minified JavaScript Bootstrap Select -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 
-    <script src="js/vendor/socket.io.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/annotations.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/settingsToolbar.js"></script>
-    <script src="js/listeners.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-core.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-stock.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-exports.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-ui.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-annotations.min.js"></script>
+
+  <!-- AnyChart Themes -->
+  <script src="https://cdn.anychart.com/releases/v8/themes/coffee.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/dark_blue.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/dark_earth.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/dark_glamour.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/dark_provence.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/dark_turquoise.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/light_blue.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/light_earth.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/light_glamour.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/light_provence.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/light_turquoise.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/monochrome.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/morning.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/pastel.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/sea.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/themes/wines.min.js"></script>
+  <!---->
+
+  <script src="js/vendor/socket.io.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/annotations.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/settingsToolbar.js"></script>
+  <script src="js/listeners.js"></script>
 </body>
 
 </html>

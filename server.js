@@ -13,8 +13,7 @@ const io = socketio(server);
 
 /**
  * get historical data from EOD and send it to client
- * @param  {any} socket socket.io client
- * @returns {void}
+ * @param {*} socket socket.io client
  */
 function eodHistoricalRequest(socket) {
   fetch('https://eodhistoricaldata.com/api/eod/EUR.FOREX?api_token=OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX&period=d')
@@ -25,10 +24,11 @@ function eodHistoricalRequest(socket) {
     })
     .catch(err => console.log(err));
 }
+
+
 /** 
  * get real-time data from EOD and send it to client
- * @param  {any} socket socket.io client
- * @returns {void}
+ * @param {*} socket socket.io client
  */
 function eodRealTimeRequest(socket) {
   fetch('https://eodhistoricaldata.com/api/real-time/EUR.FOREX?api_token=anychart-5b084a5bd99e75.54278180&fmt=json')
@@ -36,6 +36,7 @@ function eodRealTimeRequest(socket) {
     .then(data => socket.emit('realTimeData', data))
     .catch(err => console.log(err));
 }
+
 
 // set static directory for express app
 app.use(express.static(path.join(__dirname, '/public')));
@@ -63,6 +64,7 @@ io.on('connection', socket => {
     clearInterval(realTimeDataInterval)
   })
 });
+
 
 // Runs express server
 server.listen(8081, function() {

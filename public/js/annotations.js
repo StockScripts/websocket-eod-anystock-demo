@@ -1,8 +1,36 @@
+/* global 
+  $: jQuery
+  chart: chart instance
+  app: application state and common functions
+  $strokeSettings = $('.strokeSettings'); // stroke settings controls
+  $markerSize = $('#select-marker-size'); // marker size select
+  $markerType = $('#select-marker-type'); // marker size select
+  $fontSize = $('#select-font-size'); // font size select
+  $fontSettings = $('#select-font-style'); // font style select
+  $annotationLabel = $('#annotation-label'); // input for the label text
+  $labelMethod = $('[data-label-method]'); //  font settings select
+  $fillColorPicker = $('[data-color="fill"]'); // fill color picker
+  $strokeColorPicker = $('[data-color="stroke"]'); // stroke color picker
+  $fontColorPicker = $('[data-color="fontColor"]'); // font color picker
+  selectTools: function, enable toolbar for annotation type
+*/
 "use strict";
 
 /**
+ * color getter/setter
+ * @param  {Object} el color picker element
+ * @param  {string} color color string
+ * @return {string} color string
+ */
+function colorHandler(el, color) {
+  if (color)
+    el.find('.color-fill-icon').css('background-color', color);
+  return el.find('.color-fill-icon').css('background-color');
+}
+
+
+/**
  * update annotations in app state
- * @returns {void}
  */
 function updateAnnotationsState() {
   for (let i=0; i < chart.getPlotsCount(); i++) {
@@ -19,24 +47,18 @@ function updateAnnotationsState() {
   $('.btn[data-action-type="saveAppState"]').removeClass('disabled');
 }
 
-/**
- * change chart's annotations handler
- * @returns {void}
- */
-function changeAnnotations() {
-  //unselect selected annotations
-  let annotation = chart.annotations().getSelectedAnnotation();
-  if (annotation) 
-    chart.annotations().unselect();
-  setTimeout(() => {
-    const $target = $(this);
-    
-    const thickness = $strokeSettings.filter('.size').val();
-    const color = $('#stroke .color-fill-icon').css('background-color');
-    let dash;
-    let annotation = chart.annotations().getSelectedAnnotation();
 
-    switch ($strokeSettings.filter('.dash').val()) {
+/**
+ * create new annotation
+ */
+function newAnnotation() {
+  //unselect selected annotations
+  chart.annotations().unselect();
+  setTimeout(() => {
+    // get selected stroke settings
+    const color = colorHandler($strokeColorPicker);
+    let [thickness, dash] = $strokeSettings.map(function() {return this.value}).get();
+    switch (dash) {
       case 'solid':
         dash = null;
         break;
@@ -47,146 +69,151 @@ function changeAnnotations() {
         dash = '10 5';
         break;
     }
-
     const stroke = {
       thickness,
       color,
       dash
     };
 
-    document.body.addEventListener('keydown', escape, {once: true});
-
-    function escape(e) {
+    // cancel drawing on Esc key pressed
+    document.body.addEventListener('keydown', e => {
       if (e.keyCode === 27)
         chart.annotations().cancelDrawing();
-    }
+    }, {once: true});
 
+    // get annotation type
     const type = 
-      $target.data().annotationType === 'drawing' 
-        ? $target.val() 
-        : $target.data().annotationType;
+      $(this).data('annotationType') === 'drawing' ?
+        $(this).val() :
+        $(this).data('annotationType');
 
+    // get annotation drawing settings
     const drawingSettings = getDrawingSettings(type, stroke);
 
-      if (!annotation) 
-        annotation = chart.annotations().startDrawing(drawingSettings);
+    // start drawing annotation
+    const annotation = chart.annotations().startDrawing(drawingSettings);
 
+    // update app selects
     updatePropertiesBySelectedAnnotation(thickness, dash);
 
-    if (annotation &&!annotation.fill && (!annotation.background || !annotation.background().fill)) {
-      $('#fill').attr('disabled', 'disabled');
+    // disable fill colorpicker if annotation hasn't fill
+    if (type === 'drawing' && !annotation.fill) {
+      $fontColorPicker.attr('disabled', 'disabled');
     } else {
-      $('#fill').removeAttr('disabled');
+      $fontColorPicker.removeAttr('disabled');
     }
   }, 1);
 }
 
+
 /**
  * annotation drawing settings getter
- * @param  {String} type annotation type
- * @param  {Object} stroke stroke settings
- * @returns {Object} Drawing Settings
+ * @param {string} type annotation type
+ * @param {Object} stroke stroke settings
+ * @return {Object} Drawing Settings
  */
 function getDrawingSettings(type, stroke) {
   // get annotation drawing settings
   if (type) {
-		let drawingSettings;
-
+    let drawingSettings = {};
     if (type === 'marker') {
       const size = $markerSize.val();
-			const markerType = $markerType.val();
-			const anchor = $markerType.find('option:selected').data().markerAnchor;
-			drawingSettings = {
-				type,
-				size,
-				markerType,
-				anchor
-			}
+      const markerType = $markerType.val();
+      const anchor = $markerType.find('option:selected').data('markerAnchor');
+      drawingSettings = {
+        type,
+        size,
+        markerType,
+        anchor
+      }
     }
-
     if (type === 'label') {
-			const fontSize = $fontSize.val();
-      const fontColor = $('[data-color="fontColor"]').find('.color-fill-icon').css('background-color');
-			const fontSettings = normalizeFontSettings($fontSettings.val());
-			let fill = $('#fill .color-fill-icon').css('background-color');
-			const background = {
-				fill,
-				stroke
-			}
-			drawingSettings = {
-				...fontSettings,
-				type,
-				fontSize,
-				fontColor,
-				background
-			}
+      const fontSize = $fontSize.val();
+      const fontColor = colorHandler($fontColorPicker);
+      const fontSettings = normalizeFontSettings($fontSettings.val());
+      let fill = $('#fill .color-fill-icon').css('background-color');
+      const background = {
+        fill,
+        stroke
+      }
+      drawingSettings = Object.assign(fontSettings, {
+        type,
+        fontSize,
+        fontColor,
+        background
+      });
     } else {
-			const color = $('#fill .color-fill-icon').css('background-color');
-			const opacity = .3;
-			const fill = {
-				color,
-				opacity
-			}
-			drawingSettings = {
-				...drawingSettings,
-				type,
-				fill,
-				stroke
-			}
+      const color = $('#fill .color-fill-icon').css('background-color');
+      const opacity = .3;
+      const fill = {
+        color,
+        opacity
+      }
+      drawingSettings = Object.assign(drawingSettings, {
+        type,
+        fill,
+        stroke
+      });
     }
-		drawingSettings.hovered = {
-			stroke
-		};
-		drawingSettings.selected = {
-			stroke
-		};
-		return drawingSettings;
+    drawingSettings.hovered = {
+      stroke
+    };
+    drawingSettings.selected = {
+      stroke
+    };
+    return drawingSettings;
   }
 }
 
+
 /**
  * remove selected annotation
- * @returns {void}
  */
 function removeSelectedAnnotation() {
   const annotation = chart.annotations().getSelectedAnnotation();
+
+  // remove annotation
   if (annotation) 
     chart.annotations().removeAnnotation(annotation);
+
+  // disable remove button
   $('.btn[data-action-type="removeSelectedAnnotation"]').addClass('disabled');
+
+  // update annotations in app state
   updateAnnotationsState();
 }
+
 
 /**
  * remove all annotations from chart
- * @returns {void}
  */
-function removeAllAnnotation() {
+function removeAllAnnotations() {
+  // remove annotations
   chart.annotations().removeAllAnnotations();
+
+  // update annotations in app.state
   updateAnnotationsState();
 }
 
+
 /**
  * annotation select event handler
- * @param  {Object} evt Event
- * @returns {void}
+ * @param {Object} e Event
  */
-function onAnnotationSelect(evt) {
-  let annotation = evt.annotation;
-  let colorFill;
-  let colorStroke;
-  let strokeWidth;
-  let strokeDash;
-  let $colorPickerFill = $('[data-color="fill"]');
-  let $colorPickerStroke = $('[data-color="stroke"]');
-  let $colorPickerFontColor = $('.color-picker[data-color="fontColor"]');
+function onAnnotationSelect(e) {
+  const annotation = e.annotation;
+  let fill, color, thickness, dash;
+  const annotationDrawingFunctions = annotation.getType() === 'label' ?
+      annotation.background() :
+      annotation;
 
   // activate toolbar for selected annotation
-  const isDrawingTool = annotation.type !== 'label' && annotation.type !== 'marker';
-  const toolbarType = isDrawingTool ? 'drawing' : annotation.type;
-  selectTools(toolbarType);
+  const isDrawingTool = annotation.getType() !== 'label' && annotation.getType() !== 'marker';
+  const type = isDrawingTool ? 'drawing' : annotation.getType();
+  selectTools(type);
   $('.toolbar a[href="#annotation-panel"]').tab('show');
 
-  if (annotation.type === 'label') {
+  if (annotation.getType() === 'label') {
     $annotationLabel.focus();
 
     // set font size select value
@@ -195,94 +222,98 @@ function onAnnotationSelect(evt) {
 
     // set font color to colorpicker button
     const fontColor = annotation.fontColor();
-    $colorPickerFontColor.find('.color-fill-icon').css('background-color', fontColor);
+    colorHandler($fontColorPicker, fontColor);
 
     // update font settings select
     const fontSettings = [];
-    $labelMethod.each(function () {
-      const method = $(this).data().labelMethod;
+    $labelMethod.each(function() {
+      const method = $(this).data('labelMethod');
       fontSettings.push(annotation[method]());
     });
     $fontSettings.val(fontSettings).selectpicker('refresh');
-
-    annotation = annotation.background();
   }
-  if (annotation.fill !== undefined) {
-    $colorPickerFill.removeAttr('disabled');
-    colorFill = annotation.fill();
+
+  // disable fill colorpicker if annotation hasn't fill
+  if (type === 'drawing' && !annotation.fill) {
+    $fillColorPicker.attr('disabled', 'disabled');
   } else {
-    $colorPickerFill.attr('disabled', 'disabled');
+    $fillColorPicker.removeAttr('disabled');
+
+    // get annotation fill
+    fill = annotationDrawingFunctions.fill();
   }
 
-  const annotationStroke = annotation.stroke();
+  const annotationStroke = annotationDrawingFunctions.stroke();
 
   if (typeof annotationStroke === 'function') {
-    colorStroke = $colorPickerStroke
-      .find('.color-fill-icon')
-      .css('background-color');
+    // get annotation stroke & fill colors
+    color = colorHandler($strokeColorPicker);
+    fill = colorHandler($fillColorPicker);
 
-    colorFill = $colorPickerFill
-      .find('.color-fill-icon')
-      .css('background-color');
-
-    if (colorFill.indexOf('a') === -1) {
-      colorFill = colorFill.replace('rgb', 'rgba').replace(')', ', 0.3)');
+    if (!fill.includes('a')) {
+      fill = fill.replace('rgb', 'rgba').replace(')', ', 0.3)');
     }
-    strokeWidth = $strokeSettings.filter('.size').val() || 1;
 
-    strokeDash = $strokeSettings.filter('.dash').val();
+    // get stroke settings values
+    [thickness, dash] = $strokeSettings.map(function() {return this.value}).get();
   } else {
-    colorStroke = annotationStroke.color;
-    strokeWidth = annotationStroke.thickness;
+    // get stroke settings
+    color = annotationStroke.color;
+    thickness = annotationStroke.thickness;
     switch (annotationStroke.dash) {
-      case `${strokeWidth} ${strokeWidth}`:
-        strokeDash = 'dotted';
+      case `${thickness} ${thickness}`:
+        dash = 'dotted';
         break;
       case '10 5':
-        strokeDash = 'dashed';
+        dash = 'dashed';
         break;
       default:
-        strokeDash = 'solid';
+        dash = 'solid';
         break;
     }
   }
 
-  if (annotation.type === 'marker') {
+  if (annotation.getType() === 'marker') {
+    // get marker size
     const markerSize = annotation.size();
 
+    // update marker size select
     $markerSize.val(markerSize).selectpicker('refresh');
     annotation.size(markerSize);
   }
 
-  if (colorFill)
-    $colorPickerFill.find('.color-fill-icon').css('background-color', colorFill.color);
+  if (fill)
+    // set fill color picker button color
+    colorHandler($fillColorPicker, fill.color);
 
-  $colorPickerStroke.find('.color-fill-icon').css('background-color', colorStroke);
+  // set stroke color picker button color
+  colorHandler($strokeColorPicker, color);
 
-  $strokeSettings.val([strokeWidth, strokeDash]).selectpicker('refresh');
+  // update stroke settings select
+  $strokeSettings.val([thickness, dash]).selectpicker('refresh');
 
+  // enable "remove annotation" button
   $('[data-action-type="removeSelectedAnnotation"]').removeClass('disabled');
 
+  // enable toolbar for the selected annotation
   $('[data-toolbar-type]').removeClass('active');
-  $(`[data-toolbar-type="${toolbarType}"]`).addClass('active');
+  $(`[data-toolbar-type="${type}"]`).addClass('active');
 }
+
+
 /**
  * update annotation stroke settings
- * @param  {Number} thickness stroke thickness
- * @param  {String} dash stroke dash
- * @returns {void}
+ * @param {number} thickness stroke thickness
+ * @param {string} dash stroke dash
  */
 function updatePropertiesBySelectedAnnotation(thickness, dash) {
-  let color;
   const annotation = chart.annotations().getSelectedAnnotation();
   if (annotation === null) return;
 
-  if (annotation.type === 'label') {
-    color = annotation.background().stroke().color;
-  } else {
-    color = annotation.stroke().color;
-  }
-
+  // get annotation stroke settings
+  const color = annotation.getType() === 'label' ?
+    annotation.background().stroke().color :
+    annotation.stroke().color;
   switch (dash) {
     case 'solid':
       dash = null;
@@ -294,7 +325,6 @@ function updatePropertiesBySelectedAnnotation(thickness, dash) {
       dash = '10 5';
       break;
   }
-
   const settings = {
     thickness,
     color,
@@ -304,48 +334,50 @@ function updatePropertiesBySelectedAnnotation(thickness, dash) {
   setAnnotationStrokeSettings(annotation, settings);
 }
 
+
 /**
- * annotation stroke settings setter
- * @param  {any} annotation selected annotation
- * @param  {Object} settings new annotation settings
- * @returns {void}
+ * update annotation stroke settings
+ * @param {*} annotation selected annotation
+ * @param {Object} settings new annotation settings
  */
 function setAnnotationStrokeSettings(annotation, settings) {
-  if (annotation.type === 'label') {
+  let annotationDrawingFunctions = annotation;
+  if (annotation.getType() === 'label') {
     $annotationLabel.focus();
-    annotation = annotation.background();
+    annotationDrawingFunctions = annotation.background();
   }
-  annotation.stroke(settings);
-  if (annotation.hovered)
-    annotation.hovered().stroke(settings);
-  if (annotation.selected)
-    annotation.selected().stroke(settings);
+  annotationDrawingFunctions.stroke(settings);
+  if (annotationDrawingFunctions.hovered)
+    annotationDrawingFunctions.hovered().stroke(settings);
+  if (annotationDrawingFunctions.selected)
+    annotationDrawingFunctions.selected().stroke(settings);
   
   updateAnnotationsState();
 }
 
+
 /**
  * create font settings method->value object from select values
- * @param  {Array} val font settings select values
- * @returns {Object} Object of font methods
+ * @param {Array} val font settings select values
+ * @return {Object} Object of font methods
  */
 function normalizeFontSettings(val) {
   const fontMethods = {};
 
-  $labelMethod.each(function () {
-    fontMethods[$(this).data().labelMethod] = null;
+  $labelMethod.each(function() {
+    fontMethods[$(this).data('labelMethod')] = null;
   });
 
   if (val)
-    val.forEach(function (item) {
+    val.forEach(function(item) {
       if (item) {
-        $fontSettings.find('[data-label-method]').each(function () {
+        $fontSettings.find('[data-label-method]').each(function() {
           const $that = $(this);
-          const $el = $(this).find('option').length ?
-            $(this).find('option') :
-            $(this);
+          const $el = $that.find('option').length ?
+            $that.find('option') :
+            $that;
 
-          $el.each(function () {
+          $el.each(function() {
             if ($(this).val() === item) {
               fontMethods[$that.attr('data-label-method')] = item;
             }
@@ -358,4 +390,27 @@ function normalizeFontSettings(val) {
   updateAnnotationsState();
 
   return fontMethods;
+}
+
+/**
+ * handler for the labels text edit
+ * @param {Object} e event object
+ */
+function textEditHandler(e) {
+  let annotation;
+  if (e.annotation.getType() === 'label') {
+    $annotationLabel
+      .val(e.annotation.text())
+      .focus()
+      .on('change keyup paste', function(e) {
+        if (e.keyCode === 46) return;
+        annotation = chart.annotations().getSelectedAnnotation();
+        if (annotation) {
+          $(this).val() ?
+            annotation.text($(this).val()) :
+            annotation.text(' ') && $(this).val(' ');
+          updateAnnotationsState();
+        }
+      });
+  }
 }

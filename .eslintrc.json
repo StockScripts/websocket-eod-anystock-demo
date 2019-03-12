@@ -203,7 +203,6 @@
         "no-ternary": "off",
         "no-throw-literal": "error",
         "no-trailing-spaces": "off",
-        "no-undef": "off",
         "no-undef-init": "error",
         "no-undefined": "off",
         "no-underscore-dangle": "off",
@@ -304,7 +303,7 @@
             "error",
             "never"
         ],
-        "valid-jsdoc": "error",
+        "valid-jsdoc": "off",
         "vars-on-top": "off",
         "wrap-iife": "off",
         "wrap-regex": "off",

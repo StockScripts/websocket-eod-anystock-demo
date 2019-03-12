@@ -1,32 +1,17 @@
+/* global
+  $: jQuery
+  app: application state and common functions
+  chart: chart instance
+  mapping: data mapping for the chart
+  chartContainer = 'chart-container'; // chart container id
+  $loader = $('#loader'); // anychart preloader
+  $seriesTypeSelect = $('#seriesTypeSelect'); // series type select
+  $themeSelect = $('#themeSelect'); // theme select
+  $indicatorTypeSelect = $('#indicatorTypeSelect'); // indicator type select
+  $resetBtn = $('.resetButton'); // app settings reset button
+*/
 "use strict";
 
-const $loader = $('#loader');
-const $seriesTypeSelect = $('#seriesTypeSelect');
-const $indicatorTypeSelect = $('#indicatorTypeSelect');
-const $themeSelect = $('#themeSelect');
-const $resetBtn = $('.resetButton');
-
-app.state.settings.chartType = $seriesTypeSelect.val();
-
-// chart container id
-const chartContainer = 'chart-container';
-
-// availiable series types
-const seriesTypes = [
-  'area',
-  'column',
-  'jump-line',
-  'line',
-  'marker',
-  'spline',
-  'spline-area',
-  'step-area',
-  'step-line',
-  'stick',
-  'range-area',
-  'candlestick',
-  'ohlc'
-];
 
 // this Sample will properly work only if upload it to a server and access via http or https
 if (window.location.protocol === 'file:') {
@@ -38,8 +23,11 @@ if (window.location.protocol === 'file:') {
   });
 }
 
+// init chart series type
+app.state.settings.seriesType = $seriesTypeSelect.val();
+
 // chart type select listener
-$seriesTypeSelect.on('change', function () {
+$seriesTypeSelect.on('change', function() {
   const type = $(this).val();
 
   // set chart type
@@ -48,26 +36,28 @@ $seriesTypeSelect.on('change', function () {
     .getSeries(0)
     .seriesType(type);
   // save chart type
-  app.state.settings.chartType = type;
+  app.state.settings.seriesType = type;
   $('.btn[data-action-type="saveAppState"]').removeClass('disabled');
 });
 
+
 // theme select listener
-$themeSelect.on('change', function () {
+$themeSelect.on('change', function() {
   $loader.show();
   app.state.settings.theme = $(this).val();
 
-  app.state.settings.currentRange = [
-    chart.xScale().getMinimum(),
-    chart.xScale().getMaximum()
-  ];
+  app.state.settings.currentRange = {
+    min: chart.getSelectedRange().firstSelected,
+    max: chart.getSelectedRange().lastSelected
+  };
 
   app.removeChart();
 
   // init, create chart
-  app.createChart(chartContainer, true);
+  app.createChart(chartContainer);
 
   $('.btn[data-action-type="saveAppState"]').removeClass('disabled');
+  $loader.hide();
 });
 
 
@@ -81,19 +71,19 @@ fetch('indicators.json')
       option.value = type;
       option.title = option.dataset.abbr = indicators[type].abbreviation;
       option.dataset.fullText = option.innerText = indicators[type].title;
-      if (indicators[type].onChartPlot) 
+      if (indicators[type].onChartPlot)
         option.dataset.onChartPlot = indicators[type].onChartPlot;
       $indicatorTypeSelect.append(option);
     }
 
     // event to show modal indicator settings
-    $indicatorTypeSelect.on('changed.bs.select', function (e, selectedIndex) {
+    $indicatorTypeSelect.on('changed.bs.select', function(e, selectedIndex) {
       // if indicator unselected save app state, remove indicator form state and re-draw chart
       if ($(this).val() === null || $(this).val().length < app.state.indicators.length) {
-        app.state.settings.currentRange = [
-          chart.xScale().getMinimum(),
-          chart.xScale().getMaximum()
-        ];
+        app.state.settings.currentRange = {
+          min: chart.getSelectedRange().firstSelected,
+          max: chart.getSelectedRange().lastSelected
+        };
 
         const removedType = this.options[selectedIndex].value;
 
@@ -107,14 +97,16 @@ fetch('indicators.json')
         app.state.indicators.splice(removedIndex, 1);
 
         // delete indicator annotations from state only if indicator's plot index gt 0
-        if (plotIndex > 0) 
+        if (plotIndex > 0)
           app.state.annotations[plotIndex] = null;
 
         // re-draw chart
         app.removeChart();
-        app.createChart(chartContainer, true);
+        app.createChart(chartContainer);
 
         $(e.target).next().dropdown('toggle');
+
+        $loader.hide();
 
         return;
       }
@@ -124,9 +116,7 @@ fetch('indicators.json')
       const type = Object.keys(indicators)[selectedIndex];
 
       // get indicator settings
-      const indicator = Object.assign(indicators[type], {
-        type
-      });
+      const indicator = Object.assign(indicators[type], {type});
 
       // create indicator modal dialog
       const $indicatorModal = $(renderIndicatorDialog(indicator));
@@ -148,7 +138,7 @@ fetch('indicators.json')
 
         // create plot
         const plot = chart.plot(plotIndex);
-        
+
         // for slow/fast stochastic
         if (indicator.type.toLowerCase().includes('stochastic')) {
           plot['stochastic'].apply(plot, [mapping, ...settings]);
@@ -171,13 +161,13 @@ fetch('indicators.json')
       });
 
       // event to init selectpicker to all select in indicator settings modal
-      $indicatorModal.on('show.bs.modal', function () {
+      $indicatorModal.on('show.bs.modal', function() {
         setColClass($indicatorForm);
         $(this).find('.select').selectpicker();
       });
 
       // event to remove modal from DOM
-      $indicatorModal.on('hidden.bs.modal', function () {
+      $indicatorModal.on('hidden.bs.modal', function() {
         $indicatorModal.remove();
       });
 
@@ -188,35 +178,38 @@ fetch('indicators.json')
     });
   });
 
+
 /**
- * remove selected class, if indicator not selected
- * @param  {Event} e event object
- * @returns {void}
+ * remove selected class, if indicator not added
+ * @param {Object} e event object
  */
 function indicatorDismissHandler(e) {
-  if ($(e.currentTarget).data('dismiss') || e.type === 'hide') {
-    let lastAddedIndicator;
 
-    for (let i = 0; i < $indicatorTypeSelect.val().length; i++) {
-      if (!app.state.indicators.find(item => item.type === $indicatorTypeSelect.val()[i])) {
-        // set indicator type
-        lastAddedIndicator = $indicatorTypeSelect.val()[i];
+  if ($(e.currentTarget).data('dismiss') || e.type === 'hide') {
+    let indexOption;
+    const selectValues = $indicatorTypeSelect.val();
+
+    // get dismissed indicator index
+    for (let i = 0; i < selectValues.length; i++) {
+      const value = selectValues[i];
+      if (!app.state.indicators.find(item => item.type === value)) {
+        indexOption = i;
         break;
       }
     }
 
-    const indexOption = $indicatorTypeSelect.val().indexOf(lastAddedIndicator);
-
-    const selectValues = $indicatorTypeSelect.val();
+    // remove indicator from select values
     selectValues.splice(indexOption, 1);
 
+    // set new values for indicators select
     $indicatorTypeSelect.val(selectValues);
     $indicatorTypeSelect.selectpicker('render');
   }
 }
 
+
 // reset all settings
-$resetBtn.on('click', function (e) {
+$resetBtn.on('click', function(e) {
   e.preventDefault();
 
   //set default theme
@@ -224,9 +217,16 @@ $resetBtn.on('click', function (e) {
 
   // reset app state
   app.state.settings.theme = 'darkEarth';
-  app.state.settings.chartType = 'candlestick';
+  app.state.settings.seriesType = 'candlestick';
   app.state.indicators = [];
   app.state.annotations = [];
+
+  // reset selected range
+  chart.selectRange('max');
+  app.state.settings.currentRange = {
+    min: chart.getSelectedRange().firstSelected,
+    max: chart.getSelectedRange().lastSelected
+  };
 
   // remove chart
   app.removeChart();
@@ -234,30 +234,51 @@ $resetBtn.on('click', function (e) {
 
   // select series type
   $seriesTypeSelect.val('candlestick').selectpicker('refresh');
-  
+
   // reset indicators select
   $indicatorTypeSelect.val('').selectpicker('refresh');
-  
+
   // init, create chart
-  app.createChart(chartContainer, true);
+  app.createChart(chartContainer);
+  
+  // unfocus reset button
+  $(e.currentTarget).blur();
+
+  $loader.hide();
 });
 
-// get label text from object key
+
+/**
+ * get label text from object key
+ * @param {string} keyText object key
+ */
 function getInputLabelText(keyText) {
   return keyText.replace(/([A-Z])/g, ' $1');
 }
 
-function renderSelectOptions(value, isSeriesType) {
+
+/**
+ * render options for indicator settings select
+ * @param {Array} values array of values
+ * @param {boolean} isSeriesType type of select
+ */
+function renderSelectOptions(values, isSeriesType) {
   let result = '';
-  const items = isSeriesType ? seriesTypes : value;
+  const items = isSeriesType ? app.seriesTypes : values;
   for (let item of items) {
-    const selected = isSeriesType && item === value ? ' selected' : ''
-    result += 
+    const selected = isSeriesType && item === values ? ' selected' : ''
+    result +=
       `<option value="${item}"${selected}>${isSeriesType ? getInputLabelText(item) : item}</option>`;
   }
   return result;
 }
 
+
+/**
+ * render indicator form field
+ * @param {string} field object key of indicator setting 
+ * @param {*} value value of indicator setting
+ */
 function renderIndicatorFormField(field, value) {
   switch (typeof value) {
     case 'number':
@@ -284,6 +305,11 @@ function renderIndicatorFormField(field, value) {
   }
 }
 
+
+/**
+ * render indicator's form
+ * @param {Object} indicator indicator settings  object
+ */
 function renderIndicatorForm(indicator) {
   let result = '';
   for (let key in indicator.defaults) {
@@ -293,6 +319,11 @@ function renderIndicatorForm(indicator) {
   return result;
 }
 
+
+/**
+ * render modal for the indicator settings
+ * @param {Object} indicator indicator settings
+ */
 function renderIndicatorDialog(indicator) {
   return `<div class="modal fade" id="indicatorSettingsModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog" role="document">
@@ -315,7 +346,11 @@ function renderIndicatorDialog(indicator) {
   </div>`
 }
 
-// set columns class
+
+/**
+ * set columns class for the indicator form's fields
+ * @param {*} $el form element
+ */
 function setColClass($el) {
   const cols = $el.find('.col-sm-4');
   const colsCount = cols.length;

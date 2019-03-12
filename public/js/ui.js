@@ -1,13 +1,23 @@
+/* global
+  $: jQuery
+  chart: chart instance
+  $strokeSettings = $('.strokeSettings'); // stroke settings controls
+  $fontSettings = $('#select-font-style'); // font style select
+  removeSelectedAnnotation: function, remove selected annotation
+  removeAllAnnotations: function, remove all annotations from chart
+  updateAnnotationsState: function, update annotations in app state
+  setAnnotationStrokeSettings: function, annotation stroke settings setter
+*/
 "use strict";
 
 // event to set stroke dash icons according stroke width
 $strokeSettings
   .filter('.size')
-  .on('changed.bs.select refreshed.bs.select', function (e, i, sel, prev) {
+  .on('changed.bs.select refreshed.bs.select', function(e, i, sel, prev) {
     $strokeSettings
       .filter('.dash')
       .find('option')
-      .each(function (index, item) {
+      .each(function(index, item) {
         const iconClass = $(item).data('icon');
         const iconClassParts = iconClass.split('-');
         if (!prev)
@@ -17,34 +27,36 @@ $strokeSettings
     $strokeSettings.filter('.dash').selectpicker('refresh');
   });
 
+
 // event to remove font settings options text
-$fontSettings.on('changed.bs.select refreshed.bs.select', function (evt) {
-  const icons = $(evt.target).next()
+$fontSettings.on('changed.bs.select refreshed.bs.select', function(e) {
+  const $target = $(e.target);
+  const icons = $target.next()
     .find('.filter-option-inner-inner')
     .find('i');
-  $(evt.target).next()
+  $target.next()
     .find('.filter-option-inner-inner')
     .html('');
   for (const icon of icons) {
-    $(evt.target).next()
+    $target.next()
       .find('.filter-option-inner-inner')
       .append(icon);
   }
 });
 
+
 /**
  * enable toolbar for annotation type
- * @param  {String} toolbarType type of toolbar to enable
- * @returns {void}
+ * @param {String} toolbarType type of toolbar to enable
  */
 function selectTools(toolbarType) {
   $('.tools[id]').hide();
   $('#' + toolbarType).show();
 }
 
+
 /**
  * init color pickers
- * @returns {void}
  */
 function createPageColorPicker() {
   // get color pickers containers
@@ -54,40 +66,34 @@ function createPageColorPicker() {
   colorPicker.colorpickerembed();
 
   // listen color changing
-  colorPicker.on('changeColor', function (e, color) {
+  colorPicker.on('changeColor', function(e, color) {
     //get annotation
     let annotation = chart.annotations().getSelectedAnnotation();
-    let thickness, dash, settings, opacity;
+    let settings, opacity;
     
     const colorType = $(this).parents('.dropdown')
-    .find('[data-color]')
-    .data('color');
+      .find('[data-color]')
+      .data('color');
     
     if (annotation) {
-      const type = annotation.type;
-      let annotationColors = annotation
+      const type = annotation.getType();
+      let annotationDrawingFunctions = annotation
       if (type === 'label')
-        annotationColors = annotation.background();
+        annotationDrawingFunctions = annotation.background();
 
       switch (colorType) {
         case 'fill':
           opacity = type === 'label' ? 1 : 0.3;
-          annotationColors.fill(color, opacity);
+          annotationDrawingFunctions.fill(color, opacity);
           updateAnnotationsState();
           break;
         case 'stroke':
-          thickness = annotationColors.stroke().thickness;
-          dash = annotationColors.stroke().dash;
-          settings = {
-            thickness,
-            color,
-            dash
-          };
+          settings = annotationDrawingFunctions.stroke();
+          settings.color = color;
           setAnnotationStrokeSettings(annotation, settings);
           break;
         case 'fontColor':
-          window.annotation = annotation;
-          if (annotation.type === 'label')
+          if (annotation.getType() === 'label')
             annotation.fontColor(color);
           updateAnnotationsState();
           break;
@@ -104,13 +110,13 @@ function createPageColorPicker() {
   });
 }
 
+
 /**
  * init application tooltips
- * @param  {String} placement tooltip placement
- * @returns {void}
+ * @param {String} placement tooltip placement
  */
 function initTooltip(placement) {
-  $(document).ready(function () {
+  $(document).ready(function() {
     $('[data-title]').tooltip({
       trigger: 'hover',
       placement,
@@ -118,7 +124,7 @@ function initTooltip(placement) {
     });
   });
 
-  $('.selectpicker').on('loaded.bs.select', function (e) {
+  $('.selectpicker').on('loaded.bs.select', function(e) {
     const btn = $(e.target).next('button');
     if (btn.length) {
       $(btn).tooltip({
@@ -130,10 +136,11 @@ function initTooltip(placement) {
   });
 }
 
+
 /**
  * create context menu items for annotations (remove and remove all)
- * @param  {Object} items context menu items
- * @returns {Object} updated context menu items object
+ * @param {Object} items context menu items
+ * @return {Object} updated context menu items object
  */
 function contextMenuItemsFormatter(items) {
   // insert context menu item on 0 position
@@ -146,7 +153,7 @@ function contextMenuItemsFormatter(items) {
   // insert context menu item on 1 position
   items['annotations-remove-all'] = {
     text: 'Remove all annotations',
-    action: removeAllAnnotation,
+    action: removeAllAnnotations,
     index: -5
   };
 
@@ -157,6 +164,7 @@ function contextMenuItemsFormatter(items) {
 
   return items;
 }
+
 
 initTooltip('bottom');
 createPageColorPicker();
