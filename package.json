@@ -32,6 +32,8 @@
   "author": "AnyChart <contact@anychart.com> (http://anychart.com)",
   "dependencies": {
     "express": "^4.16.3",
-    "papaparse": "^4.6.2"
+    "node-fetch": "^2.3.0",
+    "papaparse": "^4.6.2",
+    "socket.io": "^2.2.0"
   }
 }
